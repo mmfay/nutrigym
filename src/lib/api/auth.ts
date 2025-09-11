@@ -40,6 +40,6 @@ export async function login(email: string, password: string): Promise<ApiResult>
 
 
 // registration method
-export async function register(user_id: string, email: string, name: string, password: string): Promise<ApiResult> {
-  return postJSON("/api/auth/register", { user_id, email, name, password });
+export async function register(email: string, name: string, password: string): Promise<ApiResult> {
+  return postJSON("/api/auth/register", { email, name, password });
 }
