@@ -5,12 +5,9 @@ DROP TABLE IF EXISTS users;
 
 -- Users table
 CREATE TABLE users (
-    user_id VARCHAR(50) PRIMARY KEY,             -- stable external ID (e.g. "test.user")
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,          -- unique email
     name VARCHAR(120) NOT NULL,                  -- full name
     password_hash TEXT NOT NULL,                 -- hashed password
     created_at TIMESTAMP DEFAULT NOW()           -- record created timestamp
 );
-
--- Add an index on user_id for fast lookups
-CREATE UNIQUE INDEX idx_users_user_id ON users(user_id);
