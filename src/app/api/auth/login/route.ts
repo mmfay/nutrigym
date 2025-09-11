@@ -13,7 +13,7 @@ const LoginReq = z.object({
 });
 
 type LoginResponse =
-  | { ok: true; user: { id: string; name: string; email: string; is_sys_admin: boolean } }
+  | { ok: true; user: { name: string; email: string; is_sys_admin: boolean } }
   | { ok: false; code: string; message: string; errors?: unknown };
 
 // constant-time-ish compare for strings, preventing timing attacks
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
 		// fetch user by email
 		const sql = `
-		SELECT user_id, email, name, password_hash, true AS is_sys_admin
+		SELECT email, name, password_hash, true AS is_sys_admin
 		FROM users
 		WHERE email = $1
 		LIMIT 1
@@ -62,6 +62,12 @@ export async function POST(req: NextRequest) {
 		// store what is returned in rows
 		const { rows } = await pool.query(sql, [email]);
 		const user = rows[0];
+
+		if (!user)
+			return NextResponse.json<LoginResponse>(
+				{ ok: false, code: "INVALID_CREDENTIALS", message: "Email Address not found." },
+				{ status: 401 }
+			);
 
 		// verify password
 		const valid = await bcrypt.compare(password, user.password_hash);
@@ -76,10 +82,9 @@ export async function POST(req: NextRequest) {
 			{
 				message: "Login successful",
 				user: {
-				id: user.user_id,
-				name: user.name,
-				email: user.email,
-				is_sys_admin: !!user.is_sys_admin, // adjust once you add a real column
+					name: user.name,
+					email: user.email,
+					is_sys_admin: !!user.is_sys_admin, // adjust once you add a real column
 				},
 			},
 			{ status: 200 }
