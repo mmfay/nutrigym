@@ -46,7 +46,7 @@ export default function SignupPage() {
 			setLoading(true);
 
 			// form values and pass to registration
-			const res = await register("test.user1", email, name, password);
+			const res = await register(email, name, password);
 
 			// errors on signup, possible duplicate
 			if (!res.ok) {
