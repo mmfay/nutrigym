@@ -4,12 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import pool from "@/lib/db/db";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 // form of a login request
 const LoginReq = z.object({
 	email: z.string().email(),
 	password: z.string().min(8),
 });
+
+type LoginResponse =
+  | { ok: true; user: { id: string; name: string; email: string; is_sys_admin: boolean } }
+  | { ok: false; code: string; message: string; errors?: unknown };
 
 // constant-time-ish compare for strings, preventing timing attacks
 function safeEqual(a: string, b: string) {
@@ -48,7 +53,7 @@ export async function POST(req: NextRequest) {
 
 		// fetch user by email
 		const sql = `
-		SELECT user_id, email, name, password_hash AS stored_password, true AS is_sys_admin
+		SELECT user_id, email, name, password_hash, true AS is_sys_admin
 		FROM users
 		WHERE email = $1
 		LIMIT 1
@@ -58,15 +63,15 @@ export async function POST(req: NextRequest) {
 		const { rows } = await pool.query(sql, [email]);
 		const user = rows[0];
 
-		// uniform error for missing user or bad password
-		if (!user || !safeEqual(password, user.stored_password)) {
-			return NextResponse.json(
-				{ code: "INVALID_CREDENTIALS", message: "Invalid email or password" },
+		// verify password
+		const valid = await bcrypt.compare(password, user.password_hash);
+		if (!valid) {
+			return NextResponse.json<LoginResponse>(
+				{ ok: false, code: "INVALID_CREDENTIALS", message: "Invalid email or password" },
 				{ status: 401 }
 			);
 		}
 
-		// --- success ---
 		return NextResponse.json(
 			{
 				message: "Login successful",

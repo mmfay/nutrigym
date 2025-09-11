@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { register } from "@/lib/api/auth";
 
 export default function SignupPage() {
 
@@ -14,6 +16,8 @@ export default function SignupPage() {
 	const [agree, setAgree] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	const router = useRouter();
 
 	// validate input
 	function validate() {
@@ -29,16 +33,31 @@ export default function SignupPage() {
 	}
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+
 		e.preventDefault();
 		setError(null);
-		const v = validate();
+
+		const v = validate();               // client side validation
+
 		if (v) { setError(v); return; }
 
 		try {
+
 			setLoading(true);
-			// TODO: Replace with your real signup endpoint
-			await new Promise((r) => setTimeout(r, 900));
-			window.location.href = "/home"; // redirect after signup
+
+			// form values and pass to registration
+			const res = await register("test.user1", email, name, password);
+
+			// errors on signup, possible duplicate
+			if (!res.ok) {
+				// show API error message (handles 409 duplicates, 400 zod, etc.)
+				setError(res.error || "Signup failed");
+				return;
+			}
+
+			// push user to home page
+			router.push("/login");   
+
 		} catch (err: any) {
 			setError(err?.message || "Signup failed");
 		} finally {
