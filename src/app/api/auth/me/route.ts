@@ -1,22 +1,37 @@
+// app/api/me/route.ts
 import { NextResponse } from "next/server";
+import { getSession, SESSION_COOKIE } from "@/lib/auth/session";
+import pool from "@/lib/db/db";
+
+export const dynamic = "force-dynamic"; // avoid caching
 
 export async function GET() {
-  
-	// hardcoded for initial testing
-	const user = {
-		id: "test.user",
-		name: "Test User",
-		email: "test@gmail.com",
-		is_sys_admin: true,
-	};
+	
+	// get the session
+	const sess = await getSession();
 
-	return NextResponse.json(
-		{
-			user,
-			permissions: ["dashboard:view", "meals:edit"], // can be empty or mocked
-		},
-		{ 
-			status: 200 
-		}
+	if (!sess) {
+		return NextResponse.json({ user: null, permissions: [] }, { status: 200 });
+	}
+
+	// get user so we can check for permissions on request
+	const { rows } = await pool.query(
+		`select id, name, email from users where id = $1 limit 1`,
+		[sess.user_id]
 	);
+	const u = rows[0];
+
+	// If session exists but user was deleted: clean up & clear cookie
+	if (!u) {
+		const res = NextResponse.json({ user: null, permissions: [] }, { status: 200 });
+		res.cookies.set({ name: SESSION_COOKIE, value: "", path: "/", maxAge: 0 });
+		await pool.query(`delete from auth_sessions where user_id = $1`, [sess.user_id]);
+		return res;
+	}
+
+	// can store permissions here later
+	return NextResponse.json({
+		user: { id: u.id, name: u.name, email: u.email },
+		permissions: [], 
+	});
 }

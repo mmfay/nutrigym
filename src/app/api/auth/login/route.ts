@@ -13,18 +13,13 @@ const LoginReq = z.object({
 });
 
 type LoginResponse =
-  | { ok: true; user: { name: string; email: string; is_sys_admin: boolean } }
+  | { ok: true; user: { id: string; name: string; email: string } }
   | { ok: false; code: string; message: string; errors?: unknown };
 
-// constant-time-ish compare for strings, preventing timing attacks
-function safeEqual(a: string, b: string) {
-	const ab = Buffer.from(a ?? "", "utf8");
-	const bb = Buffer.from(b ?? "", "utf8");
-	if (ab.length !== bb.length) return false;
-	return crypto.timingSafeEqual(ab, bb);
-}
+const SESSION_TTL_SEC = 60 * 60 * 24 * 7; // 7 days
 
 export async function POST(req: NextRequest) {
+
 	try {
 		
 		// parse body
@@ -34,7 +29,7 @@ export async function POST(req: NextRequest) {
 			body = await req.json();
 		} catch {
 			return NextResponse.json(
-				{ code: "BAD_JSON", message: "Request body must be valid JSON." },
+				{ ok: false, code: "BAD_JSON", message: "Request body must be valid JSON." },
 				{ status: 400 }
 			);
 		}
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
 
 		if (!parsed.success) {
 			return NextResponse.json(
-				{ code: "BAD_REQUEST", message: "Invalid payload", errors: parsed.error.flatten() },
+				{ ok: false, code: "BAD_REQUEST", message: "Invalid payload", errors: parsed.error.flatten() },
 				{ status: 400 }
 			);
 		}
@@ -53,7 +48,7 @@ export async function POST(req: NextRequest) {
 
 		// fetch user by email
 		const sql = `
-		SELECT email, name, password_hash, true AS is_sys_admin
+		SELECT id, email, name, password_hash
 		FROM users
 		WHERE email = $1
 		LIMIT 1
@@ -63,13 +58,14 @@ export async function POST(req: NextRequest) {
 		const { rows } = await pool.query(sql, [email]);
 		const user = rows[0];
 
+		// if no user, send email not found.
 		if (!user)
 			return NextResponse.json<LoginResponse>(
-				{ ok: false, code: "INVALID_CREDENTIALS", message: "Email Address not found." },
+				{ ok: false, code: "INVALID_CREDENTIALS", message: "Email Address not found" },
 				{ status: 401 }
 			);
-
-		// verify password
+		
+		// validate password
 		const valid = await bcrypt.compare(password, user.password_hash);
 		if (!valid) {
 			return NextResponse.json<LoginResponse>(
@@ -77,24 +73,42 @@ export async function POST(req: NextRequest) {
 				{ status: 401 }
 			);
 		}
+		
+		// Create opaque session id + persist
+		const sid = crypto.randomBytes(24).toString("base64url");
 
-		return NextResponse.json(
-			{
-				message: "Login successful",
-				user: {
-					name: user.name,
-					email: user.email,
-					is_sys_admin: !!user.is_sys_admin, // adjust once you add a real column
-				},
-			},
+		// insert a server side session
+		await pool.query(
+		`
+			INSERT INTO auth_sessions (id, user_id, data, expires_at)
+			VALUES ($1, $2::uuid, '{}'::jsonb, now() + make_interval(secs => $3))
+			ON CONFLICT (id) DO NOTHING
+		`,
+		[sid, user.id, SESSION_TTL_SEC]
+		);
+
+		// 5) Set HttpOnly cookie + return user
+		const res = NextResponse.json<LoginResponse>(
+			{ ok: true, user: { id: String(user.id), name: user.name, email: user.email } },
 			{ status: 200 }
 		);
+		res.cookies.set({
+			name: "sid",
+			value: sid, // opaque only
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			path: "/",
+			maxAge: SESSION_TTL_SEC,
+		});
+		return res;
 
 	} catch (err: any) {
 		
 		const isDev = process.env.NODE_ENV !== "production";
 		return NextResponse.json(
 			{
+				ok: false,
 				code: "INTERNAL",
 				message: "Internal server error",
 				...(isDev ? { details: err?.message, stack: err?.stack } : {}),
