@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 		[sid, user.id, SESSION_TTL_SEC]
 		);
 
-		// 5) Set HttpOnly cookie + return user
+		// Set HttpOnly cookie + return user
 		const res = NextResponse.json<LoginResponse>(
 			{ ok: true, user: { id: String(user.id), name: user.name, email: user.email } },
 			{ status: 200 }
