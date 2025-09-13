@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import { fetchWeightTrend } from "@/lib/api/weight/weight";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
+import { fetchMacroTrend } from "@/lib/api/macros/macros";
 
 
 export default function HomePage() {
@@ -37,7 +38,9 @@ export default function HomePage() {
 		async function loadTrend() {
 			try {
 				const data = await fetchWeightTrend();
-				setWeight(data)
+				const dayMacros = await fetchMacroTrend();
+				setWeight(data);
+				setWeek(dayMacros);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -47,16 +50,6 @@ export default function HomePage() {
 
     	loadTrend();
 		const t = setTimeout(() => {
-
-			setWeek([
-				{ date: "Mon", protein: 150, carbs: 210, fat: 65 },
-				{ date: "Tue", protein: 130, carbs: 180, fat: 58 },
-				{ date: "Wed", protein: 162, carbs: 225, fat: 72 },
-				{ date: "Thu", protein: 140, carbs: 195, fat: 60 },
-				{ date: "Fri", protein: 155, carbs: 205, fat: 68 },
-				{ date: "Sat", protein: 120, carbs: 160, fat: 55 },
-				{ date: "Sun", protein: 100, carbs: 140, fat: 48 },
-			]);
 
 			setLoading(false);
 
