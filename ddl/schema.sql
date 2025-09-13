@@ -21,3 +21,14 @@ create table if not exists auth_sessions (
 
 create index if not exists auth_sessions_user_idx    on auth_sessions(user_id);
 create index if not exists auth_sessions_expires_idx on auth_sessions(expires_at);
+
+create table if not exists weight (
+    user_id uuid not null references users(id) on delete cascade,
+    measured_at date not null,             
+    weight numeric(6,2) not null,          
+    unit text check (unit in ('lb','kg')) default 'lb'
+);
+
+-- One weight entry per user per day 
+create unique index if not exists idx_weights_user_date on weight (user_id, measured_at)
+  include (weight, unit);            -- cover common selects

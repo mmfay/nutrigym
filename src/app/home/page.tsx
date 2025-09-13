@@ -17,33 +17,9 @@ import {
 	Pie,
 	Cell,
 } from "recharts";
+import { fetchWeightTrend } from "@/lib/api/weight/weight";
+import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
 
-// ---- Mock types ----
-interface MacroGoal {
-  calories: number;
-  protein: number; // g
-  carbs: number;   // g
-  fat: number;     // g
-}
-
-interface TodayMacros {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
-
-interface DayMacros { // for weekly bars
-  date: string; // e.g. "Mon"
-  protein: number;
-  carbs: number;
-  fat: number;
-}
-
-interface WeightPoint {
-  date: string; // e.g. "2025-09-01"
-  weight: number; // lbs or kg
-}
 
 export default function HomePage() {
 
@@ -57,6 +33,19 @@ export default function HomePage() {
 	// simulate api
 	useEffect(() => {
 		
+		let isMounted = true;
+		async function loadTrend() {
+			try {
+				const data = await fetchWeightTrend();
+				setWeight(data)
+			} catch (err) {
+				console.error(err);
+			} finally {
+				if (isMounted) setLoading(false);
+			}
+		}
+
+    	loadTrend();
 		const t = setTimeout(() => {
 
 			setWeek([
@@ -67,16 +56,6 @@ export default function HomePage() {
 				{ date: "Fri", protein: 155, carbs: 205, fat: 68 },
 				{ date: "Sat", protein: 120, carbs: 160, fat: 55 },
 				{ date: "Sun", protein: 100, carbs: 140, fat: 48 },
-			]);
-			setWeight([
-				{ date: "2025-08-12", weight: 186.2 },
-				{ date: "2025-08-16", weight: 185.6 },
-				{ date: "2025-08-20", weight: 184.9 },
-				{ date: "2025-08-24", weight: 184.5 },
-				{ date: "2025-08-28", weight: 183.8 },
-				{ date: "2025-09-01", weight: 183.1 },
-				{ date: "2025-09-05", weight: 182.6 },
-				{ date: "2025-09-09", weight: 182.3 },
 			]);
 
 			setLoading(false);
