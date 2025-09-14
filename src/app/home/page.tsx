@@ -19,15 +19,18 @@ import {
 } from "recharts";
 import { fetchWeightTrend } from "@/lib/api/weight/weight";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
-import { fetchMacroTrend } from "@/lib/api/macros/macros";
+import { fetchDailyMacros, fetchMacroTrend, fetchDailyMacroGoals } from "@/lib/api/macros/macros";
 
+// lib/api/macros/macros.ts
+const DEFAULT_TODAY: TodayMacros = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+const DEFAULT_GOAL:  MacroGoal  = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
 export default function HomePage() {
 
 	// In real app, fetch these from your API on mount
 	const [loading, setLoading] = useState(true);
-	const [goal, setGoal] = useState<MacroGoal>({ calories: 2200, protein: 160, carbs: 220, fat: 70 });
-	const [today, setToday] = useState<TodayMacros>({ calories: 1380, protein: 92, carbs: 135, fat: 38 });
+	const [goal, setGoal] = useState<MacroGoal>(DEFAULT_GOAL);
+	const [today, setToday] = useState<TodayMacros>(DEFAULT_TODAY);
 	const [week, setWeek] = useState<DayMacros[]>([]);
 	const [weight, setWeight] = useState<WeightPoint[]>([]);
 
@@ -39,8 +42,12 @@ export default function HomePage() {
 			try {
 				const data = await fetchWeightTrend();
 				const dayMacros = await fetchMacroTrend();
+				const todayMacros = await fetchDailyMacros();
+				const macroGoals = await fetchDailyMacroGoals();
 				setWeight(data);
 				setWeek(dayMacros);
+				setToday(todayMacros);
+				setGoal(macroGoals);
 			} catch (err) {
 				console.error(err);
 			} finally {
