@@ -59,11 +59,24 @@ create table if not exists food_tracker (
     food_id bigserial not null references food(id),
     recorded_at date not null,        
     carbs numeric(6,2) not null, 
-    fats numeric(6,2) not null,    
-    proteins numeric(6,2) not null,   
+    fat numeric(6,2) not null,    
+    protein numeric(6,2) not null,   
     calories numeric(6,2) not null,          
     serving_size    numeric(6,2) not null,
     serving_unit    text
 );
 
 create index if not exists food_tracker_user_idx    on food_tracker(user_id);
+
+drop table macro_goals;
+create table if not exists macro_goals (
+    user_id uuid not null references users(id) on delete cascade,
+    date_from date not null,   
+    date_to date,     
+    carbs numeric(6,2) not null, 
+    fat numeric(6,2) not null,    
+    protein numeric(6,2) not null,
+    calories numeric(6,2) not null
+);
+
+create index if not exists macro_goal_user_idx    on macro_goals(user_id);

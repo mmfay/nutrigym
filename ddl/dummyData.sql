@@ -27,7 +27,7 @@ insert into food (id, name, brand, barcode, serving_size, serving_unit, protein,
   (11, 'Protein Bar - Chocolate', 'FitBrand', '0000000000011', 60.00, 'g', 20.00, 23.00, 7.00, 250.00),
   (12, 'Orange', 'Generic', '0000000000012', 131.00, 'g', 1.20, 15.40, 0.20,  62.00);
 
-insert into food_tracker (user_id, food_id, recorded_at, carbs, fats, proteins, calories, serving_size, serving_unit) values
+insert into food_tracker (user_id, food_id, recorded_at, carbs, fat, protein, calories, serving_size, serving_unit) values
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-11', 20, 20, 20, 100, 2, 'g'),
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-11', 20, 20, 20, 100, 2, 'g'),
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-11', 20, 20, 20, 100, 2, 'g'),
@@ -54,4 +54,16 @@ insert into food_tracker (user_id, food_id, recorded_at, carbs, fats, proteins, 
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-13', 20, 20, 20, 100, 2, 'g'),
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-13', 20, 20, 20, 100, 2, 'g'),
   ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-13', 20, 20, 20, 100, 2, 'g'),
-  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-13', 20, 20, 20, 100, 2, 'g');
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-13', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g'),
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e', 1, '2025-09-15', 20, 20, 20, 100, 2, 'g');
+
+insert into macro_goals (user_id, date_from, calories, carbs, fat, protein) values
+  ('dff70ba7-9dd9-4743-98fa-bdcf208dc69e','2025-09-11',2000,200,70,170);
