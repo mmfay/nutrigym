@@ -20,10 +20,7 @@ import {
 import { fetchWeightTrend } from "@/lib/api/weight/weight";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
 import { fetchDailyMacros, fetchMacroTrend, fetchDailyMacroGoals } from "@/lib/api/macros/macros";
-
-// lib/api/macros/macros.ts
-const DEFAULT_TODAY: TodayMacros = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-const DEFAULT_GOAL:  MacroGoal  = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 
 export default function HomePage() {
 
