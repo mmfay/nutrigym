@@ -20,6 +20,7 @@ import {
 import { fetchWeightTrend } from "@/lib/api/weight/weight";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
 import { fetchDailyMacros, fetchMacroTrend, fetchDailyMacroGoals } from "@/lib/api/macros/macros";
+import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 
 export default function HomePage() {
@@ -37,14 +38,11 @@ export default function HomePage() {
 		let isMounted = true;
 		async function loadTrend() {
 			try {
-				const data = await fetchWeightTrend();
-				const dayMacros = await fetchMacroTrend();
-				const todayMacros = await fetchDailyMacros();
-				const macroGoals = await fetchDailyMacroGoals();
-				setWeight(data);
-				setWeek(dayMacros);
-				setToday(todayMacros);
-				setGoal(macroGoals);
+				const HomePage = await fetchHomePagePayload();
+				setWeight(HomePage.weight);
+				setWeek(HomePage.macros);
+				setToday(HomePage.today);
+				setGoal(HomePage.goals);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -71,9 +69,21 @@ export default function HomePage() {
 
 	const donutData = useMemo(
 		() => [
-			{ name: "Protein", value: today.protein, goal: goal.protein },
-			{ name: "Carbs", value: today.carbs, goal: goal.carbs },
-			{ name: "Fat", value: today.fat, goal: goal.fat },
+			{ 	
+				name: "Protein", 
+				value: today.protein, 
+				goal: goal.protein 
+			},
+			{ 	
+				name: "Carbs", 
+				value: today.carbs, 
+				goal: goal.carbs 
+			},
+			{ 
+				name: "Fat",
+				value: today.fat, 
+				goal: goal.fat 
+			},
 		],
 		[today, goal]
 	);

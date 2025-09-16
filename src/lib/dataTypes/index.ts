@@ -45,3 +45,10 @@ export interface WeightPoint {
     date: string; 
     weight: number; 
 }
+
+export interface HomePayload {
+    weight: WeightPoint[];
+    macros: DayMacros[];
+    today:  TodayMacros;
+    goals:  MacroGoal;
+}
