@@ -2,20 +2,19 @@
 import { HomePayload } from "@/lib/dataTypes";
 
 export async function fetchHomePagePayload(): Promise<HomePayload> {
-  const res = await fetch("/api/home", {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store", // optional: avoid caching
-  });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch homepage payload: ${res.status} ${res.statusText}`);
-  }
+	const res = await fetch("/api/home", {
+		method: "GET",
+		credentials: "include",
+		cache: "no-store", // optional: avoid caching
+	});
 
-  const data = (await res.json()) as HomePayload;
+	if (!res.ok) {
+		throw new Error(`Failed to fetch homepage payload: ${res.status} ${res.statusText}`);
+	}
 
-  // Optional debug:
-  alert(JSON.stringify(data));
+	const data = (await res.json()) as HomePayload;
 
-  return data;
+	return data;
+	
 }

@@ -17,22 +17,24 @@ import {
 	Pie,
 	Cell,
 } from "recharts";
-import { fetchWeightTrend } from "@/lib/api/weight/weight";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
-import { fetchDailyMacros, fetchMacroTrend, fetchDailyMacroGoals } from "@/lib/api/macros/macros";
 import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
+import AddWeightModal from "../components/AddWeight";
+import { addNewWeight } from "@/lib/api/weight/weight";
 
 export default function HomePage() {
 
-	// In real app, fetch these from your API on mount
+	// state values
 	const [loading, setLoading] = useState(true);
 	const [goal, setGoal] = useState<MacroGoal>(DEFAULT_GOAL);
 	const [today, setToday] = useState<TodayMacros>(DEFAULT_TODAY);
 	const [week, setWeek] = useState<DayMacros[]>([]);
 	const [weight, setWeight] = useState<WeightPoint[]>([]);
+	const [showAdd, setShowAdd] = useState(false);
+	const [showWeight, setShowWeight] = useState(false);
 
-	// simulate api
+	// api call on page init
 	useEffect(() => {
 		
 		let isMounted = true;
@@ -40,6 +42,7 @@ export default function HomePage() {
 			try {
 				const HomePage = await fetchHomePagePayload();
 				setWeight(HomePage.weight);
+				setShowWeight(HomePage.weight.length > 0);
 				setWeek(HomePage.macros);
 				setToday(HomePage.today);
 				setGoal(HomePage.goals);
@@ -61,6 +64,26 @@ export default function HomePage() {
 
 	}, []);
 
+	// handle opening modal
+	function handleAddClick() {
+		setShowAdd(true);
+	}
+
+	// handles updating or adding weight
+	async function handleConfirm({ date, weight }: { date: string; weight: number }) {
+
+		// update/add weight
+		try {
+			const data = await addNewWeight(weight, date);
+			setWeight(data);
+			setShowAdd(false);
+			setShowWeight(true);
+		} catch (err) {
+			alert("Failed to add weight, try again.");
+		}
+
+	}
+
 	// Progress calculations
 	const proteinPct = Math.min(100, Math.round((today.protein / goal.protein) * 100));
 	const carbsPct = Math.min(100, Math.round((today.carbs / goal.carbs) * 100));
@@ -68,6 +91,7 @@ export default function HomePage() {
 	const calsPct = Math.min(100, Math.round((today.calories / goal.calories) * 100));
 
 	const donutData = useMemo(
+
 		() => [
 			{ 	
 				name: "Protein", 
@@ -86,6 +110,7 @@ export default function HomePage() {
 			},
 		],
 		[today, goal]
+
 	);
 
   	const donutColors = ["#0ea5e9", "#22c55e", "#f59e0b"]; // sky, green, amber
@@ -207,11 +232,29 @@ export default function HomePage() {
 
 			{/* Charts row 2: Weight trend */}
 			<section className="grid grid-cols-1 gap-6">
+			{showWeight ? (
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">
-				<h2 className="text-sm font-semibold text-slate-900 dark:text-white">Weight trend (last 4 weeks)</h2>
-				<div className="text-xs text-slate-500 dark:text-slate-400">Target rate: −0.5 lb/week</div>
-				</div>
+					{/* Left: Title */}
+					<h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+						Weight trend (last 4 weeks)
+					</h2>
+					{/* Center: Target rate */}
+					<div className="text-xs text-slate-500 dark:text-slate-400 text-center flex-1">
+						Target rate: −0.5 lb/week
+					</div>
+					{/* Right: Add button */}
+					<button
+						onClick={handleAddClick}
+						className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
+									text-white px-3 py-1.5 text-sm font-medium 
+									shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
+									hover:from-indigo-400 hover:to-purple-400 
+									active:scale-95 transition"
+					>
+					Add Today’s Weight
+					</button>
+					</div>
 				<div className="h-72">
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart data={weight} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
@@ -223,7 +266,27 @@ export default function HomePage() {
 					</LineChart>
 				</ResponsiveContainer>
 				</div>
+			</div> ) : (
+    		// Empty state with CTA
+    		<div className="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur p-8 text-center">
+				<h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
+					No weight entries yet
+				</h2>
+				<p className="text-sm text-slate-600 dark:text-slate-300 mb-5">
+					Start tracking to see your trend over time.
+				</p>
+				<button
+					onClick={handleAddClick}
+					className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
+								text-white px-3 py-1.5 text-sm font-medium 
+								shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
+								hover:from-indigo-400 hover:to-purple-400 
+								active:scale-95 transition"
+				>
+					Click to log your weight!
+				</button>
 			</div>
+			)}
 			</section>
 
 			{/* Placeholder for recent meals */}
@@ -252,6 +315,13 @@ export default function HomePage() {
 			<div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-5 py-3 text-sm text-slate-700 dark:text-slate-200 shadow">Loading your dashboard…</div>
 			</div>
 		)}
+		{/* Weight Modal shows when a user wants to add new weight */}
+		<AddWeightModal
+			isOpen={showAdd}
+			onClose={() => setShowAdd(false)}
+			onConfirm={handleConfirm}
+		/>
+
 		</div>
 	);
 }
