@@ -3,33 +3,6 @@ import Link from "next/link";
 export default function LandingPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
-		{/* Header */}
-		<header className="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 border-b border-slate-200/60 dark:border-slate-800/60">
-			<div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-			<Link href="/" className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">NutriGym</Link>
-			<nav className="hidden md:flex items-center gap-8 text-sm text-slate-700 dark:text-slate-300">
-				<a href="#features" className="hover:text-slate-900 dark:hover:text-white">Features</a>
-				<a href="#how" className="hover:text-slate-900 dark:hover:text-white">How it works</a>
-				<a href="#faq" className="hover:text-slate-900 dark:hover:text-white">FAQ</a>
-				<a href="#contact" className="hover:text-slate-900 dark:hover:text-white">Contact</a>
-			</nav>
-			{/*Login and Signup Links*/}
-			<div className="flex items-center gap-3">
-				<Link 
-					href="/login" 
-					className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
-				>
-				Log in
-				</Link>
-				<Link
-					href="/signup"
-					className="inline-flex items-center rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-medium shadow-lg shadow-slate-900/10 hover:opacity-95 active:opacity-90"
-				>
-				Get started
-				</Link>
-			</div>
-			</div>
-		</header>
 
 		{/* Hero */}
 		<section className="relative">

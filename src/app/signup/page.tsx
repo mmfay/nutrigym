@@ -67,18 +67,6 @@ export default function SignupPage() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
-		{/* Top nav / brand */}
-		<header className="px-6 py-5 flex items-center justify-between">
-			<Link href="/" className="font-semibold tracking-tight text-slate-800 dark:text-slate-100">
-			NutriGym
-			</Link>
-			<div className="text-sm text-slate-600 dark:text-slate-300">
-			Already have an account? {" "}
-			<Link href="/login" className="font-medium text-slate-900 hover:underline dark:text-white">
-				Log in
-			</Link>
-			</div>
-		</header>
 
 		{/* Content */}
 		<main className="px-6">

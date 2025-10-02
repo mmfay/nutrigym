@@ -22,6 +22,7 @@ import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 import AddWeightModal from "../components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
+import AppNavBar from "../components/NavBar";
 
 export default function HomePage() {
 
@@ -118,20 +119,6 @@ export default function HomePage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
 		{/* Top bar */}
-		<header className="px-6 py-4 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur bg-white/60 dark:bg-slate-900/60 sticky top-0 z-30">
-			<div className="mx-auto max-w-7xl flex items-center justify-between">
-			<div className="flex items-center gap-4">
-				<span className="font-semibold tracking-tight text-slate-900 dark:text-white">NutriGym</span>
-				<span className="text-xs text-slate-500 dark:text-slate-400">Home</span>
-			</div>
-			<div className="flex items-center gap-3">
-				<Link href="/foods" className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">Foods</Link>
-				<Link href="/meals" className="rounded-xl border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">Meals</Link>
-				<Link href="/profile" className="rounded-xl bg-slate-900 text-white px-3 py-1.5 text-sm font-medium shadow hover:opacity-95">Profile</Link>
-			</div>
-			</div>
-		</header>
-
 		<main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
 			{/* Greeting + quick add */}
 			<section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
