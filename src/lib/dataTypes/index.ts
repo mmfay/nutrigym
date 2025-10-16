@@ -52,3 +52,29 @@ export interface HomePayload {
     today:  TodayMacros;
     goals:  MacroGoal;
 }
+
+export type Food = {
+    id: number,
+    name: string,
+    brand: string,
+    calories: number,
+    protein: number,
+    carbs: number,
+    fat: number,
+    serving_size: number,
+    serving_unit: string
+}
+
+export type FoodTracked = {
+    id: number,
+	meal: number,
+	name: string,
+	brand: string,
+	recorded_at: string, 
+    carbs: number,
+    fat: number,
+	protein: number,
+	calories: number,
+    logged_serving_size: number,
+    logged_serving_unit: string
+}
