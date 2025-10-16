@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { logout } from "@/lib/api/auth";
 
 interface User {
   id: string;
@@ -14,7 +15,7 @@ interface AuthContextType {
   permissions: string[];
   isAuthenticated: boolean;
   isLoading: boolean;
-  logout: () => Promise<void>;
+  doLogout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -81,16 +82,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 	};
 
-	const logout = async () => {
+	const doLogout = async () => {
 
 		try {
-			await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+			await logout();
 		} catch (err) {
 			console.warn("Logout request failed (continuing):", err);
 		} finally {
 			setUser(null);
 			setPermissions([]);
-			router.push("/login");
+			router.push("/");
 		}
 
 	};
@@ -116,7 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		permissions,
 		isAuthenticated: !!user,
 		isLoading,
-		logout,
+		doLogout,
 		refreshUser,
 	};
 

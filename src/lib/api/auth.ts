@@ -38,6 +38,10 @@ export async function login(email: string, password: string): Promise<ApiResult>
   return postJSON("/api/auth/login", { email, password });
 }
 
+// logout method
+export async function logout(): Promise<ApiResult> {
+    return postJSON("/api/auth/logout", { });
+}
 
 // registration method
 export async function register(email: string, name: string, password: string): Promise<ApiResult> {

@@ -12,15 +12,16 @@ export async function POST() {
 	// If you keep a server-side session, invalidate it
 	if (sid) {
 		try {
-		await pool.query(`delete from sessions where id = $1`, [sid]);
+			await pool.query(`delete from sessions where id = $1`, [sid]);
 		} catch (e) {
-		// don't leak errors to client—logging is fine
-		console.error("logout: failed to delete session", e);
+			// don't leak errors to client—logging is fine
+			console.error("logout: failed to delete session", e);
 		}
 	}
 
 	// Clear the cookie
 	const res = NextResponse.json({ ok: true });
+
 	res.cookies.set(SESSION_COOKIE, "", {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
@@ -28,5 +29,7 @@ export async function POST() {
 		path: "/",
 		expires: new Date(0),        // expire immediately
 	});
+
 	return res;
+	
 }
