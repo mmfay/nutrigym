@@ -9,6 +9,7 @@ export async function GET() {
 
     const userid = await getUser();
     const userId = userid?.id; 
+
     // if no user is clear cookie and return unauthenticated
     if (!userId) {
 
@@ -22,6 +23,7 @@ export async function GET() {
 
     }
 
+    // get dinner
     const data = await getRecentFood(userId,2);
 
     return NextResponse.json(data, {
