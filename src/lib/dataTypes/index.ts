@@ -78,3 +78,31 @@ export type FoodTracked = {
     logged_serving_size: number,
     logged_serving_unit: string
 }
+
+export type NewFood = {
+    name: string, 
+    brand: string,
+    carbs: number,
+    fat: number,
+    protein: number,
+    calories: number,
+    serving_size: number
+    serving_unit: string
+}
+
+export type FoodInput = {
+    name: string;
+    brand?: string;
+    calories: number;
+    fat: number;     
+    carbs: number;  
+    protein: number; 
+    servingMode: "COUNT" | "MEASURE";
+    servingUnit: string;   // e.g., "g"/"oz"/"lb"
+    servingQty: number;     // e.g., 32
+    countUnit: string;
+    countQty: number;
+    barcode?: string;
+};
+
+export type Input = Date | string | number;

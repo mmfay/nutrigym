@@ -40,6 +40,8 @@ create table if not exists food (
   barcode           text unique,              -- optional (UPC/EAN)
   serving_size      numeric(7,2) not null default 0,
   serving_unit      text,
+  serving_type      text not null,
+  count_name        text,
   protein           numeric(7,2) not null default 0,
   carbs             numeric(7,2) not null default 0,
   fat               numeric(7,2) not null default 0,
