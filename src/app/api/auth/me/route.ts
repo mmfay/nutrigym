@@ -19,6 +19,7 @@ export async function GET() {
 		`select id, name, email from users where id = $1 limit 1`,
 		[sess.user_id]
 	);
+
 	const u = rows[0];
 
 	// If session exists but user was deleted: clean up & clear cookie
@@ -32,6 +33,5 @@ export async function GET() {
 	// can store permissions here later
 	return NextResponse.json({
 		user: { id: u.id, name: u.name, email: u.email },
-		permissions: [], 
 	});
 }

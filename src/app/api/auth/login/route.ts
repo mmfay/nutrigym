@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
 		// get email and password
 		const { email, password } = parsed.data;
 
+		const emailNorm = email.trim().toLowerCase();
+
 		// fetch user by email
 		const sql = `
 		SELECT id, email, name, password_hash
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
 		`;
 
 		// store what is returned in rows
-		const { rows } = await pool.query(sql, [email]);
+		const { rows } = await pool.query(sql, [emailNorm]);
 		const user = rows[0];
 
 		// if no user, send email not found.
@@ -96,7 +98,8 @@ export async function POST(req: NextRequest) {
 			name: "sid",
 			value: sid, // opaque only
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
+			//secure: process.env.NODE_ENV === "production",
+			secure: false,
 			sameSite: "lax",
 			path: "/",
 			maxAge: SESSION_TTL_SEC,
@@ -110,7 +113,7 @@ export async function POST(req: NextRequest) {
 			{
 				ok: false,
 				code: "INTERNAL",
-				message: "Internal server error",
+				message: JSON.stringify(err),
 				...(isDev ? { details: err?.message, stack: err?.stack } : {}),
 			},
 			{ status: 500 }

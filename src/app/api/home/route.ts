@@ -25,29 +25,27 @@ export async function GET() {
 
     }
 
-  // Run queries in parallel
-  const [weight, today, goals, macros] = await Promise.all([
-    getWeightTrend(userId) as Promise<WeightPoint[]>,
-    getTodayMacros(userId) as Promise<TodayMacros>,
-    getTodayGoals(userId)  as Promise<MacroGoal>,
-    getMacroTrend(userId)  as Promise<DayMacros[]>,
-  ]);
+	// Run queries in parallel
+	const [weight, today, goals, macros] = await Promise.all([
+		getWeightTrend(userId) as Promise<WeightPoint[]>,
+		getTodayMacros(userId) as Promise<TodayMacros>,
+		getTodayGoals(userId)  as Promise<MacroGoal>,
+		getMacroTrend(userId)  as Promise<DayMacros[]>,
+	]);
 
-  const payload: HomePayload = {
-    weight: weight ?? [],
-    macros: macros ?? [],
-    today:  today  ?? DEFAULT_TODAY ,
-    goals:  goals  ?? DEFAULT_GOAL,
-  };
+	const payload: HomePayload = {
+		weight: weight ?? [],
+		macros: macros ?? [],
+		today:  today  ?? DEFAULT_TODAY ,
+		goals:  goals  ?? DEFAULT_GOAL,
+	};
 
-  // Type-check at compile time
-  // (optional, but nice: errors if payload doesn't satisfy HomePayload)
-  const checked: HomePayload = payload;
+	// Type-check at compile time
+	// (optional, but nice: errors if payload doesn't satisfy HomePayload)
+	const checked: HomePayload = payload;
 
-  console.log(checked);
-  
-  return NextResponse.json(checked, {
-    headers: { "Cache-Control": "no-store" },
-  });
+	return NextResponse.json(checked, {
+		headers: { "Cache-Control": "no-store" },
+	});
 
 }
