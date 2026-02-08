@@ -12,6 +12,11 @@ services:
     volumes:
       - nutrigym_pgdata:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nutrigym -d nutrigym"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
   
   app:
     build:
@@ -22,8 +27,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://nutrigym:nutrigym@db:5432/nutrigym
+    env_file:
+      - .env.docker
     ports: 
       - "3000:3000"
 volumes:
