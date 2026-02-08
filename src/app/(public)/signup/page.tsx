@@ -69,7 +69,7 @@ export default function SignupPage() {
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
 
 		{/* Content */}
-		<main className="px-6">
+		<main className="px-6 pt-16">
 			<div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 			{/* Left: Value prop */}
 			<section className="hidden lg:block">
@@ -213,22 +213,6 @@ export default function SignupPage() {
 						>
 						{loading ? "Creating account…" : "Create account"}
 						</button>
-
-						{/* Divider */}
-						<div className="relative py-2">
-						<div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700" /></div>
-						<div className="relative flex justify-center"><span className="bg-white dark:bg-slate-900 px-3 text-xs text-slate-500">or</span></div>
-						</div>
-
-						{/* Social providers (wire up later) */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-						<button type="button" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-							Continue with Google
-						</button>
-						<button type="button" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-							Continue with Apple
-						</button>
-						</div>
 
 						{/* Login prompt (mobile) */}
 						<p className="sm:hidden text-center text-sm text-slate-600 dark:text-slate-300">

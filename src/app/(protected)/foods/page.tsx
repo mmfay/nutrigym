@@ -4,7 +4,7 @@ import { fetchRecentByMeal, addToTracking, fetchTracking, removeFromTracking, se
 import { Food, FoodTracked, NewFood } from "@/lib/dataTypes";
 import { todayLocalISO, formatShortDate } from "@/lib/utils/date";
 import { Meal, mealForNow } from "@/lib/utils/meal";
-import AddFoodForm from "../components/AddFood";
+import AddFoodForm from "@/app/components/AddFood";
 
 // ---------- Types ----------
 type Mode = "recent" | "all";

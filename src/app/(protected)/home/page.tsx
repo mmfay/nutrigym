@@ -20,9 +20,9 @@ import {
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
 import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
-import AddWeightModal from "../components/AddWeight";
+import AddWeightModal from "@/app/components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
-import AppNavBar from "../components/NavBar";
+import AppNavBar from "@/app/components/NavBar";
 
 export default function HomePage() {
 

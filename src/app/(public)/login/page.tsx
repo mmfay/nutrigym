@@ -2,59 +2,44 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { login } from "@/lib/api/auth";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function LoginPage() {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+	const auth = useAuth();
 
-	// Debug state to visualize the API interaction
-	const [statusCode, setStatusCode] = useState<number | null>(null);
-	const [statusText, setStatusText] = useState<string | null>(null);
-	const [responseBody, setResponseBody] = useState<any>(null);
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-	// how to handle the login
 	async function handleSubmit(e: React.FormEvent) {
-		
+
 		e.preventDefault();
 		setError(null);
-		setStatusCode(null);
-		setStatusText(null);
-		setResponseBody(null);
 		setLoading(true);
 
 		try {
-			const result = await login(email, password);
 
-			// populate the debug panel
-			setStatusCode(result.status);
-			setStatusText(result.statusText);
-			setResponseBody("ok" in result && result.ok ? result.data : (result as any).body);
+			await auth.handleLogin(email, password);
 
-			if (!("ok" in result) || !result.ok) {
-				setError(result.error);
-				return;
-			}
+		} catch (e: any) {
+			
+			setError(e?.message || "Network error");
 
-			// success → go to /home
-			window.location.href = "/home";
-		} catch (err: any) {
-			setError(err?.message || "Network error");
 		} finally {
-			setLoading(false);
-		}
-	}
 
+			setLoading(false);
+
+		}
+		
+	}
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
-
 		{/* Content */}
-		<main className="px-6">
+		<main className="px-6 pt-16">
 			<div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 			{/* Left: Value prop */}
 			<section className="hidden lg:block">
@@ -67,9 +52,15 @@ export default function LoginPage() {
 					Your data stays yours—privacy-first and designed for speed.
 				</p>
 				<ul className="text-slate-600 dark:text-slate-300 space-y-3">
-					<li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Barcode & text search</li>
-					<li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Custom meals & recipes</li>
-					<li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Macro goals & insights</li>
+					<li className="flex items-start gap-3">
+					<span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Barcode & text search
+					</li>
+					<li className="flex items-start gap-3">
+					<span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Custom meals & recipes
+					</li>
+					<li className="flex items-start gap-3">
+					<span className="mt-1 h-2 w-2 rounded-full bg-slate-400" /> Macro goals & insights
+					</li>
 				</ul>
 				</div>
 			</section>
@@ -78,7 +69,10 @@ export default function LoginPage() {
 			<section>
 				<div className="relative">
 				{/* Subtle glow */}
-				<div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 blur-xl opacity-60" aria-hidden />
+				<div
+					className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 blur-xl opacity-60"
+					aria-hidden
+				/>
 				<div className="relative rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-xl">
 					<div className="p-8 sm:p-10">
 					<div className="mb-6">
@@ -158,45 +152,22 @@ export default function LoginPage() {
 						>
 						{loading ? "Signing in…" : "Sign in"}
 						</button>
-
-						{/* Divider */}
-						<div className="relative py-2">
-						<div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700" /></div>
-						<div className="relative flex justify-center"><span className="bg-white dark:bg-slate-900 px-3 text-xs text-slate-500">or</span></div>
-						</div>
-
-						{/* Social providers (wire up to your provider routes) */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-						<button type="button" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-							Continue with Google
-						</button>
-						<button type="button" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60">
-							Continue with Apple
-						</button>
-						</div>
 					</form>
-
-					{/* Debug panel */}
-					<div className="mt-6">
-						<details className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900/70 p-4 text-sm">
-						<summary className="cursor-pointer text-slate-700 dark:text-slate-300">API Debug</summary>
-						<div className="mt-3 space-y-2 text-slate-700 dark:text-slate-300">
-							<div><span className="font-medium">Status:</span> {statusCode ?? "—"} {statusText ?? ""}</div>
-							<div className="font-medium">Body:</div>
-							<pre className="whitespace-pre-wrap break-words text-xs bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 max-h-56 overflow-auto">{responseBody ? JSON.stringify(responseBody, null, 2) : "(no response yet)"}</pre>
-							<p className="text-xs text-slate-500 dark:text-slate-400">(This panel is just for development; remove in production.)</p>
-						</div>
-						</details>
-					</div>
 					</div>
 				</div>
 				</div>
 
 				{/* Footer: subtle policy links */}
 				<div className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-				By continuing you agree to our {" "}
-				<Link href="/terms" className="underline">Terms</Link> and {" "}
-				<Link href="/privacy" className="underline">Privacy Policy</Link>.
+				By continuing you agree to our{" "}
+				<Link href="/terms" className="underline">
+					Terms
+				</Link>{" "}
+				and{" "}
+				<Link href="/privacy" className="underline">
+					Privacy Policy
+				</Link>
+				.
 				</div>
 			</section>
 			</div>
@@ -208,4 +179,5 @@ export default function LoginPage() {
 		</footer>
 		</div>
 	);
+
 }

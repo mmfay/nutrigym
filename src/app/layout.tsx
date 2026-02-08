@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "./context/AuthContext";
-import AppNavBar from "./components/NavBar";
+import { AuthProvider } from "./providers/AuthProvider";
+import NavBar from "./components/NavBar";
 import "./globals.css";
 
 
@@ -25,16 +25,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <AuthProvider>
-          <AppNavBar />
-          {children}
-        </AuthProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body
+				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+			>
+				<AuthProvider>
+					<NavBar />
+					{children}
+				</AuthProvider>
+			</body>
+		</html>
+	);
 }
