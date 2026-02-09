@@ -120,6 +120,7 @@ export default function HomePage() {
 		{/* Top bar */}
 		<main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
 			{/* Greeting + quick add */}
+			{/*
 			<section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 			<div className="lg:col-span-3 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -133,8 +134,9 @@ export default function HomePage() {
 				</div>
 				</div>
 			</div>
-
+			*/}
 			{/* Today ring summary */}
+			{/*
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="text-sm font-medium text-slate-900 dark:text-white">Today</div>
 				<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -157,10 +159,13 @@ export default function HomePage() {
 				</div>
 			</div>
 			</section>
-
+				*/}
 			{/* Charts row 1: Donut + Weekly Macros */}
+			{/*
 			<section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			*/}
 			{/* Donut breakdown */}
+			{/*
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">
 				<h2 className="text-sm font-semibold text-slate-900 dark:text-white">Today’s macro breakdown</h2>
@@ -192,8 +197,9 @@ export default function HomePage() {
 				))}
 				</div>
 			</div>
-			
+			*/}
 			{/* Weekly macros stacked bars */}
+			{/*
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">
 				<h2 className="text-sm font-semibold text-slate-900 dark:text-white">Last 7 days (g)</h2>
@@ -214,8 +220,10 @@ export default function HomePage() {
 				</ResponsiveContainer>
 				</div>
 			</div>
+			*/}
+			{/*
 			</section>
-
+				*/}
 			{/* Charts row 2: Weight trend */}
 			<section className="grid grid-cols-1 gap-6">
 			{showWeight ? (

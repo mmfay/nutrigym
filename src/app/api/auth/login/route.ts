@@ -98,8 +98,7 @@ export async function POST(req: NextRequest) {
 			name: "sid",
 			value: sid, // opaque only
 			httpOnly: true,
-			//secure: process.env.NODE_ENV === "production",
-			secure: false,
+			secure: process.env.NODE_ENV === "production",
 			sameSite: "lax",
 			path: "/",
 			maxAge: SESSION_TTL_SEC,
