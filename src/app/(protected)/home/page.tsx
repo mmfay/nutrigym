@@ -22,7 +22,6 @@ import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 import AddWeightModal from "@/app/components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
-import AppNavBar from "@/app/components/NavBar";
 
 export default function HomePage() {
 
@@ -44,9 +43,9 @@ export default function HomePage() {
 				const HomePage = await fetchHomePagePayload();
 				setWeight(HomePage.weight);
 				setShowWeight(HomePage.weight.length > 0);
-				setWeek(HomePage.macros);
-				setToday(HomePage.today);
-				setGoal(HomePage.goals);
+				//setWeek(HomePage.macros);
+				//setToday(HomePage.today);
+				//setGoal(HomePage.goals);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -193,7 +192,7 @@ export default function HomePage() {
 				))}
 				</div>
 			</div>
-
+			
 			{/* Weekly macros stacked bars */}
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">

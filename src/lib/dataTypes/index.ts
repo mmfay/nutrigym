@@ -48,9 +48,9 @@ export interface WeightPoint {
 
 export interface HomePayload {
     weight: WeightPoint[];
-    macros: DayMacros[];
-    today:  TodayMacros;
-    goals:  MacroGoal;
+    //macros: DayMacros[];
+    //today:  TodayMacros;
+    //goals:  MacroGoal;
 }
 
 export type Food = {

@@ -26,18 +26,19 @@ export async function GET() {
     }
 
 	// Run queries in parallel
-	const [weight, today, goals, macros] = await Promise.all([
+	const [weight] = await Promise.all([
+	//const [weight, today, goals, macros] = await Promise.all([
 		getWeightTrend(userId) as Promise<WeightPoint[]>,
-		getTodayMacros(userId) as Promise<TodayMacros>,
-		getTodayGoals(userId)  as Promise<MacroGoal>,
-		getMacroTrend(userId)  as Promise<DayMacros[]>,
+		//getTodayMacros(userId) as Promise<TodayMacros>,
+		//getTodayGoals(userId)  as Promise<MacroGoal>,
+		//getMacroTrend(userId)  as Promise<DayMacros[]>,
 	]);
 
 	const payload: HomePayload = {
 		weight: weight ?? [],
-		macros: macros ?? [],
-		today:  today  ?? DEFAULT_TODAY ,
-		goals:  goals  ?? DEFAULT_GOAL,
+		//macros: macros ?? [],
+		//today:  today  ?? DEFAULT_TODAY ,
+		//goals:  goals  ?? DEFAULT_GOAL,
 	};
 
 	// Type-check at compile time
