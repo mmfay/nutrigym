@@ -79,9 +79,10 @@ export type FoodTracked = {
     logged_serving_unit: string
 }
 
-export type NewFood = {
+export type FoodCreate = {
     name: string, 
     brand: string,
+	barcode: string,
     carbs: number,
     fat: number,
     protein: number,

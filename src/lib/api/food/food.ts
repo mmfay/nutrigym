@@ -1,4 +1,7 @@
-import { Food, FoodInput, FoodTracked, NewFood} from "@/lib/dataTypes";
+import { Food, FoodInput, FoodTracked, FoodCreate} from "@/lib/dataTypes";
+
+import { postJSON, getJSON } from "../submissions";
+import { ApiResult } from "@/lib/dataTypes/results";
 
 // fetches weekly macro trend
 export async function fetchRecentByMeal(meal: string): Promise<Food[]> {
@@ -96,23 +99,6 @@ export async function removeFromTracking(id: number): Promise<Food[]> {
 /**
  * Adds new food to database to select from
  */
-export async function addFood(foodItem: FoodInput): Promise<Response> {
-    
-    const res = await fetch("/api/food/items/add", {
-        method: "POST",
-        credentials: "include", // keep cookies/session if you’re using them
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            foodItem
-        }),
-    });
-    
-    if (!res.ok) {
-        throw new Error(`Failed to add new food: ${res.statusText}`);
-    }
-
-    return res.json();
-
+export async function createFood(newFood: FoodCreate): Promise<ApiResult<Food>> {
+	return postJSON("/api/food/items", { newFood });
 }

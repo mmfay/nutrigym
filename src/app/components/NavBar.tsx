@@ -13,6 +13,8 @@ export default function NavBar() {
 	// Treat homepage as marketing (adjust if you have other marketing routes)
 	const isMarketing = pathname === "/";
 
+	const isActive = (href: string) => pathname === href;
+
 	return (
 		<header className="sticky top-0 z-30 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur bg-white/60 dark:bg-slate-900/60">
 		<div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
@@ -25,7 +27,14 @@ export default function NavBar() {
 			</Link>
 
 			</div>
-
+			{/* Auth-only app links */}
+			{!isMarketing && auth.isAuth && (
+			<nav className="hidden md:flex items-center gap-8 text-sm text-slate-700 dark:text-slate-200">
+				<Link href="/foods" className="hover:text-slate-900 dark:hover:text-white">
+				Foods
+				</Link>
+			</nav>
+			)}
 			{/* Center: marketing links on landing only */}
 			{isMarketing && (
 				<nav className="hidden md:flex items-center gap-8 text-sm text-slate-700 dark:text-slate-200">
