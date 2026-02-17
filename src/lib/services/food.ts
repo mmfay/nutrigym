@@ -1,6 +1,7 @@
 // lib/services/food.ts
 import pool from "@/lib/db/db";
 import { FoodInput } from "../schemas/food";
+import { FoodCreate } from "../dataTypes";
 
 // get recent foods for selection
 export async function getRecentFood(userId: string, meal: number | null, limit = 10) {
@@ -41,7 +42,7 @@ export async function getRecentFood(userId: string, meal: number | null, limit =
 
 
 // get recent foods for selection
-export async function addNewFood(food: FoodInput) {
+export async function addNewFood(food: FoodCreate) {
 	console.log(food);
 	const sql = `
 	insert into food (name, brand, barcode, serving_size, serving_unit, serving_type, protein, carbs, fat, calories) values
@@ -51,9 +52,9 @@ export async function addNewFood(food: FoodInput) {
 	const params = [food.name, 
 					food.brand ?? 'Generic', 
 					food.barcode, 
-					food.servingQty, 
-					food.servingThing,
-					food.servingMode, 
+					food.serving_size, 
+					food.serving_unit,
+					'Count',
 					food.protein,
 					food.carbs, 
 					food.fat, 
