@@ -22,8 +22,12 @@ import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 import AddWeightModal from "@/app/components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
+import AddFood from "@/app/components/Modals/AddFood";
+import { useFoodController } from "@/lib/hooks/useFoodController";
 
 export default function HomePage() {
+
+	const fc = useFoodController();
 
 	// state values
 	const [loading, setLoading] = useState(true);
@@ -283,6 +287,32 @@ export default function HomePage() {
 			)}
 			</section>
 
+			{/* Quick add food */}
+			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
+			<div className="flex items-center justify-between gap-4">
+				<div className="space-y-1">
+				<h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+					Quick add food
+				</h2>
+				<p className="text-sm text-slate-600 dark:text-slate-300">
+					Create a food item once, then reuse it when you log meals.
+				</p>
+				</div>
+
+				<button
+					type="button"
+					onClick={fc.openFoodModal}
+					className="shrink-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500
+								text-white px-4 py-2 text-sm font-medium
+								shadow-lg shadow-indigo-500/30 ring-1 ring-white/10
+								hover:from-indigo-400 hover:to-purple-400
+								active:scale-95 transition"
+				>
+				Create food
+				</button>
+			</div>
+			</div>
+
 			{/* Placeholder for recent meals */}
 			<section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 			<div className="lg:col-span-2 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
@@ -315,7 +345,12 @@ export default function HomePage() {
 			onClose={() => setShowAdd(false)}
 			onConfirm={handleConfirm}
 		/>
-
+		<AddFood
+			isOpen={fc.foodModalOpen}
+			onClose={fc.closeFoodModal}
+			onOpen={fc.openFoodModal}
+			onCreate={fc.onCreate}
+		/>
 		</div>
 	);
 }
