@@ -1,5 +1,6 @@
 // app/api/me/route.ts
 import { NextResponse } from "next/server";
+import { ResponseBuilder as R } from "@/lib/utils/response";
 import { getSession, SESSION_COOKIE } from "@/lib/auth/session";
 import pool from "@/lib/db/db";
 
@@ -30,8 +31,10 @@ export async function GET() {
 		return res;
 	}
 
-	// can store permissions here later
-	return NextResponse.json({
-		user: { id: u.id, name: u.name, email: u.email },
-	});
+	const user = {
+		id: u.id, name: u.name, email: u.email
+	}
+
+	return R.ok(user, "User is Authenticated");
+
 }

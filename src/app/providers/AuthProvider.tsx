@@ -25,14 +25,6 @@ export type AuthContextValue = AuthState & {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-	async function safeJson(res: Response) {
-		try {
-			return await res.json();
-		} catch {
-			return null;
-		}
-	}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
 	
 	const [user, setUser] = useState<AuthUser | null>(null);
@@ -56,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				return;
 			}
 
-			const user = (res.data as any)?.user as AuthUser | undefined;
+			const user = res.data;
 
 			if (user) {
 				setUser(user);
