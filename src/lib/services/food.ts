@@ -23,7 +23,7 @@ export async function getRecentFood(userId: string, meal: number | null, limit =
 			entry_id                   AS last_entry_id,
 			meal,
 			meal_name
-		FROM v_food_log
+		FROM food_log_v
 		WHERE user_id = $1::uuid
 		AND ($2::int IS NULL OR meal = $2::int)
 		ORDER BY food_id, recorded_at DESC, entry_id DESC
@@ -73,19 +73,18 @@ export async function addNewFood(food: FoodCreate) {
 export async function findFoods(textStr: string) {
 	
 	const sql = `
-SELECT *
-FROM food
-WHERE name  ILIKE '%' || $1 || '%'
-   OR COALESCE(brand, '') ILIKE '%' || $1 || '%'
-   LIMIT 10;
-
+		SELECT *
+		FROM food
+		WHERE 
+			name ILIKE '%' || $1 || '%'
+			OR COALESCE(brand, '') ILIKE '%' || $1 || '%'
+		LIMIT 10;
 	`;
 
 	const params = [textStr];
 
 	const { rows } = await pool.query(sql, params);
 
-	console.log(rows);
 	return rows;
 
 }

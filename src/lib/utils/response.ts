@@ -34,4 +34,8 @@ export class ResponseBuilder {
 	static serverError(message = "Internal Server Error") {
 		return this.json(null, 500, message);
 	}
+
+	static badRequest(message = "Bad Request") {
+		return this.json(null, 400, message);
+	}
 }

@@ -1,6 +1,6 @@
 import { Food, FoodInput, FoodTracked, FoodCreate} from "@/lib/dataTypes";
 
-import { postJSON, getJSON } from "../submissions";
+import { postJSON, getJSON, deleteJSON } from "../submissions";
 import { ApiResult } from "@/lib/dataTypes/results";
 
 // fetches weekly macro trend
@@ -39,66 +39,30 @@ export async function searchFood(food: string): Promise<Food[]> {
 
 }
 
-// fetches weekly macro trend
-export async function fetchTracking(date: string): Promise<FoodTracked[]> {
-    
-    // if no date, get todays date.
-    const d = date ?? new Date();
-
-    const res = await fetch(`/api/food/tracking/get?date=${encodeURIComponent(date)}`, {
-        credentials: "include",
-    });
-
-    if (!res.ok) 
-        throw new Error(`Failed to fetch tracking: ${res.status} ${res.statusText}`);
-
-    return res.json();
-
-}
-
-// posts weight on date, returns array of weights for graph
-export async function addToTracking(foodItem: Food, meal: number, trackingDate: String): Promise<Response> {
-
-    const res = await fetch("/api/food/tracking/add", {
-        method: "POST",
-        credentials: "include", // keep cookies/session if you’re using them
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            foodItem,
-            meal,
-            date: trackingDate,
-        }),
-    });
-
-    if (!res.ok) {
-        throw new Error(`Failed to add new weight: ${res.statusText}`);
-    }
-
-    return res.json();
-
-}
-
-// posts weight on date, returns array of weights for graph
-export async function removeFromTracking(id: number): Promise<Food[]> {
-    
-    const res = await fetch(`/api/food/tracking/remove?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        credentials: "include", // keep cookies/session if you’re using them
-    });
-
-    if (!res.ok) {
-        throw new Error(`Failed to add new weight: ${res.statusText}`);
-    }
-
-    return res.json();
-
-}
-
 /**
  * Adds new food to database to select from
  */
 export async function createFood(newFood: FoodCreate): Promise<ApiResult<Food>> {
 	return postJSON("/api/food/items", { newFood });
+}
+
+/**
+ * Logs a food to a meal/date
+ */
+export async function logFood(foodItem: Food, meal: number, loggedDate: String): Promise<ApiResult<FoodTracked>> {
+	return postJSON("/api/food/log", { foodItem, meal, loggedDate });
+}
+
+/**
+ * Gets the food log for a user on a specific date
+ */
+export async function fetchFoodLog(date: String): Promise<ApiResult<FoodTracked[]>> {
+	return getJSON("/api/food/log", { date });
+}
+
+/**
+ * Delete a users tracked food
+ */
+export async function deleteFoodLog(id: number): Promise<ApiResult<FoodTracked[]>> {
+	return deleteJSON("/api/food/log", { id });
 }

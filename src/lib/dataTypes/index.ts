@@ -75,8 +75,8 @@ export type FoodTracked = {
     fat: number,
 	protein: number,
 	calories: number,
-    logged_serving_size: number,
-    logged_serving_unit: string
+    serving_size: number,
+    serving_unit: string
 }
 
 export type FoodCreate = {
