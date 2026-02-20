@@ -39,7 +39,6 @@ export async function POST(req: Request) {
 	
 }
 
-
 // GET /api/food/log?date=2026-02-18
 export async function GET(req: Request) {
 
@@ -58,14 +57,13 @@ export async function GET(req: Request) {
 	}
 
 	const url = new URL(req.url);
-	const date = url.searchParams.get("date"); // YYYY-MM-DD from your todayLocalISO
+	const date = url.searchParams.get("date");
 
 	if (!date) return R.badRequest("Date Missing from Request");
 
 	try {
-		// You decide what this returns: lines, totals, grouped by meal, etc.
 		const tracked = await getFoodLog(userId, date);
-		return R.ok( tracked , "Tracked food loaded");
+		return R.ok(tracked, "Tracked food loaded");
 	} catch (err) {
 		console.error(err);
 		return R.serverError("Failed to load tracked food");

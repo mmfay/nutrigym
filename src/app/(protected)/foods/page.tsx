@@ -303,6 +303,7 @@ export default function FoodPicker() {
 				{/* Native calendar */}
 				<input
 				type="date"
+				value={date}
 				className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
 				placeholder="YYYY-MM-DD"
 				onChange={(e) => { setDate(e.target.value); }}

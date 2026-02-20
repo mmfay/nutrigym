@@ -94,7 +94,6 @@ export function useFoodController(): FoodsController {
 				setError("No data returned from server");
 				return;
 			}
-			alert(`Data: ${JSON.stringify(data)}`);
 
 			setTrackedFood(prev => [...prev, data]);
 
