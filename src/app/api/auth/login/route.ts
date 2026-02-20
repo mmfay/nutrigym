@@ -16,7 +16,7 @@ type LoginResponse =
   | { ok: true; user: { id: string; name: string; email: string } }
   | { ok: false; code: string; message: string; errors?: unknown };
 
-const SESSION_TTL_SEC = 60 * 60 * 24 * 7; // 7 days
+const SESSION_TTL_SEC = 60 * 60 * 24; // 1 Day
 
 export async function POST(req: NextRequest) {
 

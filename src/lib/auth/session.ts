@@ -17,14 +17,19 @@ export async function getSession(): Promise<Session | null> {
     
     if (!sid) return null;
 
-    // finds the session in the database based on sid
-    const { rows } = await pool.query(
-        `select user_id, data
+	const sql = `
+		select 
+			user_id
+			,data
         from auth_sessions
-        where id = $1 and expires_at > now()
-        limit 1`,
-        [sid]
-    );
+        where 
+			id = $1 
+			and expires_at > now()
+        limit 1;
+	`;
+
+    // finds the session in the database based on sid
+    const { rows } = await pool.query(sql,[sid]);
 
     return rows[0] ? { user_id: rows[0].user_id, data: rows[0].data } : null;
     
