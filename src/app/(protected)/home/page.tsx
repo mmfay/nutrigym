@@ -65,7 +65,8 @@ export default function HomePage() {
 				}
 				
 				setGoal(data.goals ?? null);
-				//setWeek(HomePage.macros);
+				
+				setWeek(data.macros);
 				setToday(data.today ?? DEFAULT_TODAY);
 			} catch (err) {
 				console.error(err);
@@ -158,7 +159,7 @@ export default function HomePage() {
 		<main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
 			{/* Greeting + quick add */}
 			
-			<section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+			
 				{/*
 			<div className="lg:col-span-3 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -173,59 +174,7 @@ export default function HomePage() {
 				</div>
 			</div>
 			*/}
-			
-			{/* Today ring summary */}
-			
-			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
-				{goal ? (
-					<>
-					<div className="text-sm font-medium text-slate-900 dark:text-white">Today</div>
-					
-					<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-					<div className="space-y-1">
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Calories</span><span>{calsPct}%</span></div>
-						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-slate-900 dark:bg-white" style={{ width: `${calsPct}%` }} /></div>
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.calories}/{Number(goal.calories)}</span></div>
-					</div>
-					<div className="space-y-1">
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Protein</span><span>{proteinPct}%</span></div>
-						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-sky-500" style={{ width: `${proteinPct}%` }} /></div>
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.protein}/{Number(goal.protein)}g</span></div>
-					</div>
-					<div className="space-y-1">
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Carbs</span><span>{carbsPct}%</span></div>
-						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-emerald-500" style={{ width: `${carbsPct}%` }} /></div>
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.carbs}/{Number(goal.carbs)}g</span></div>
-					</div>
-					<div className="space-y-1">
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Fat</span><span>{fatPct}%</span></div>
-						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-amber-500" style={{ width: `${fatPct}%` }} /></div>
-						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.fat}/{Number(goal.fat)}g</span></div>
-					</div>
-					</div>
-					</>
-				) : (
-					<>
-					<button
-						className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
-							text-white px-3 py-1.5 text-sm font-medium 
-							shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
-							hover:from-indigo-400 hover:to-purple-400 
-							active:scale-95 transition"
-						onClick={mc.openGoalModal}
-					>
-					Click to add macro Goal!
-					</button>
-					</>
-				)}
-			</div>
-			</section>
-				
-			{/* Charts row 1: Donut + Weekly Macros */}
-			{/*
-			<section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-			*/}
-			{/* Donut breakdown */}
+						{/* Donut breakdown */}
 			{/*
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">
@@ -259,9 +208,80 @@ export default function HomePage() {
 				</div>
 			</div>
 			*/}
-			{/* Weekly macros stacked bars */}
-			{/*
-			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
+			{/* Today + Weekly Macros (stack on mobile, side-by-side on desktop) */}
+			<section className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+			{/* Today progress */}
+			<div className="lg:col-span-2 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
+				{goal ? (
+				<>
+					<div className="text-sm font-medium text-slate-900 dark:text-white">Today</div>
+
+					<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>Calories</span><span>{calsPct}%</span>
+						</div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
+						<div className="h-2 bg-slate-900 dark:bg-white" style={{ width: `${calsPct}%` }} />
+						</div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>{today.calories}/{Number(goal.calories)}</span>
+						</div>
+					</div>
+
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>Protein</span><span>{proteinPct}%</span>
+						</div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
+						<div className="h-2 bg-sky-500" style={{ width: `${proteinPct}%` }} />
+						</div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>{today.protein}/{Number(goal.protein)}g</span>
+						</div>
+					</div>
+
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>Carbs</span><span>{carbsPct}%</span>
+						</div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
+						<div className="h-2 bg-emerald-500" style={{ width: `${carbsPct}%` }} />
+						</div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>{today.carbs}/{Number(goal.carbs)}g</span>
+						</div>
+					</div>
+
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>Fat</span><span>{fatPct}%</span>
+						</div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
+						<div className="h-2 bg-amber-500" style={{ width: `${fatPct}%` }} />
+						</div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300">
+						<span>{today.fat}/{Number(goal.fat)}g</span>
+						</div>
+					</div>
+					</div>
+				</>
+				) : (
+				<button
+					className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
+					text-white px-3 py-1.5 text-sm font-medium 
+					shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
+					hover:from-indigo-400 hover:to-purple-400 
+					active:scale-95 transition"
+					onClick={mc.openGoalModal}
+				>
+					Click to add macro Goal!
+				</button>
+				)}
+			</div>
+
+			{/* Weekly macros chart */}
+			<div className="lg:col-span-3 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex items-center justify-between mb-4">
 				<h2 className="text-sm font-semibold text-slate-900 dark:text-white">Last 7 days (g)</h2>
 				<div className="text-xs text-slate-500 dark:text-slate-400">Protein / Carbs / Fat</div>
@@ -281,10 +301,8 @@ export default function HomePage() {
 				</ResponsiveContainer>
 				</div>
 			</div>
-			*/}
-			{/*
 			</section>
-				*/}
+				
 			{/* Charts row 2: Weight trend */}
 			<section className="grid grid-cols-1 gap-6">
 			{showWeight ? (
@@ -294,10 +312,6 @@ export default function HomePage() {
 					<h2 className="text-sm font-semibold text-slate-900 dark:text-white">
 						Weight trend (last 4 weeks)
 					</h2>
-					{/* Center: Target rate */}
-					<div className="text-xs text-slate-500 dark:text-slate-400 text-center flex-1">
-						Target rate: −0.5 lb/week
-					</div>
 					{/* Right: Add button */}
 					<button
 						onClick={handleAddClick}
@@ -369,22 +383,6 @@ export default function HomePage() {
 				</button>
 			</div>
 			</div>
-
-			{/* Placeholder for recent meals */}
-			<section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-			<div className="lg:col-span-2 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
-				<h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Recent meals</h2>
-				<div className="text-sm text-slate-600 dark:text-slate-300">Coming soon — your last 10 items for one‑tap re‑log.</div>
-			</div>
-			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
-				<h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Tips</h2>
-				<ul className="text-sm text-slate-600 dark:text-slate-300 space-y-2">
-				<li>Use saved meals for dishes you eat weekly.</li>
-				<li>Log right after eating to keep your streak.</li>
-				<li>Adjust macro goals as your weight changes.</li>
-				</ul>
-			</div>
-			</section>
 		</main>
 
 		{/* Footer */}

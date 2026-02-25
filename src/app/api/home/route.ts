@@ -8,7 +8,7 @@ import { getWeightTrend } from "@/lib/services/weight";
 import { ResponseBuilder as R } from "@/lib/utils/response";
 import { DEFAULT_GOAL, DEFAULT_TODAY, HomePayload, WeightPoint, MacroGoal, TodayMacros, DayMacros } from "@/lib/dataTypes";
 
-export async function GET() {
+export async function GET(req: Request) {
 
     const userid = await getUser();
     const userId = userid?.id; 
@@ -26,22 +26,28 @@ export async function GET() {
 
     }
 
-	// Run queries in parallel
-	const [weight, today, goals] = await Promise.all([
-	//const [weight, today, goals, macros] = await Promise.all([
-		getWeightTrend(userId) as Promise<WeightPoint[]>,
-		getTodayMacros(userId) as Promise<TodayMacros>,
-		getTodayGoals(userId)  as Promise<MacroGoal>,
-		//getMacroTrend(userId)  as Promise<DayMacros[]>,
-	]);
+	const url = new URL(req.url);
+	const userDate = url.searchParams.get("today"); // string | null
 
+	if (!userDate) {
+		return R.badRequest("No Date passed");
+	}
+
+	// Run queries in parallel
+	const [weight, today, goals, macros] = await Promise.all([
+		getWeightTrend(userId) as Promise<WeightPoint[]>,
+		getTodayMacros(userId, userDate) as Promise<TodayMacros>,
+		getTodayGoals(userId)  as Promise<MacroGoal>,
+		getMacroTrend(userId, userDate)  as Promise<DayMacros[]>,
+	]);
+	
 	const payload: HomePayload = {
 		weight: weight ?? [],
-		//macros: macros ?? [],
+		macros: macros ?? [],
 		today:  today  ?? DEFAULT_TODAY ,
 		goals:  goals,
 	};
-	
+
 	// Type-check at compile time
 	// (optional, but nice: errors if payload doesn't satisfy HomePayload)
 	const checked: HomePayload = payload;

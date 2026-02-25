@@ -56,7 +56,7 @@ export interface WeightPoint {
 
 export interface HomePayload {
     weight: WeightPoint[];
-    //macros: DayMacros[];
+    macros: DayMacros[];
     today:  TodayMacros;
     goals:  MacroGoal;
 }
