@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { getUser, SESSION_COOKIE } from "@/lib/auth/session";
 import { getTodayMacros, getTodayGoals, getMacroTrend } from "@/lib/services/macros";
 import { getWeightTrend } from "@/lib/services/weight";
+import { ResponseBuilder as R } from "@/lib/utils/response";
 import { DEFAULT_GOAL, DEFAULT_TODAY, HomePayload, WeightPoint, MacroGoal, TodayMacros, DayMacros } from "@/lib/dataTypes";
 
 export async function GET() {
@@ -26,27 +27,25 @@ export async function GET() {
     }
 
 	// Run queries in parallel
-	const [weight] = await Promise.all([
+	const [weight, today, goals] = await Promise.all([
 	//const [weight, today, goals, macros] = await Promise.all([
 		getWeightTrend(userId) as Promise<WeightPoint[]>,
-		//getTodayMacros(userId) as Promise<TodayMacros>,
-		//getTodayGoals(userId)  as Promise<MacroGoal>,
+		getTodayMacros(userId) as Promise<TodayMacros>,
+		getTodayGoals(userId)  as Promise<MacroGoal>,
 		//getMacroTrend(userId)  as Promise<DayMacros[]>,
 	]);
 
 	const payload: HomePayload = {
 		weight: weight ?? [],
 		//macros: macros ?? [],
-		//today:  today  ?? DEFAULT_TODAY ,
-		//goals:  goals  ?? DEFAULT_GOAL,
+		today:  today  ?? DEFAULT_TODAY ,
+		goals:  goals,
 	};
-
+	
 	// Type-check at compile time
 	// (optional, but nice: errors if payload doesn't satisfy HomePayload)
 	const checked: HomePayload = payload;
 
-	return NextResponse.json(checked, {
-		headers: { "Cache-Control": "no-store" },
-	});
+	return R.ok( checked, "Payload success.")
 
 }

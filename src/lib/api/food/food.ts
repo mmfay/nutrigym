@@ -1,4 +1,4 @@
-import { Food, FoodInput, FoodTracked, FoodCreate} from "@/lib/dataTypes";
+import { Food, FoodTracked, FoodCreate} from "@/lib/dataTypes";
 
 import { postJSON, getJSON, deleteJSON } from "../submissions";
 import { ApiResult } from "@/lib/dataTypes/results";
@@ -65,4 +65,11 @@ export async function fetchFoodLog(date: String): Promise<ApiResult<FoodTracked[
  */
 export async function deleteFoodLog(id: number): Promise<ApiResult<FoodTracked[]>> {
 	return deleteJSON("/api/food/log", { id });
+}
+
+/**
+ * Get Recent Foods by Meal
+ */
+export async function getRecentFoods(meal: number): Promise<ApiResult<Food[]>> {
+	return getJSON("/api/food/recent", { meal });
 }

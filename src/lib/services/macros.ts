@@ -1,5 +1,7 @@
 // lib/services/macros.ts
 import pool from "@/lib/db/db";
+import { MacroGoal, MacroGoalCreate } from "../dataTypes";
+import { ResponseBuilder as R } from "../utils/response";
 
 export async function getMacroTrend(userId: string, days = 14) {
     
@@ -43,20 +45,23 @@ export async function getMacroTrend(userId: string, days = 14) {
 // get current users macros for today
 export async function getTodayMacros(userId: string) {
     
-	const { rows } = await pool.query(
-		`
+	const sql = `
         select 
-            sum(calories)   as calories
-            ,sum(protein)   as protein
-            ,sum(carbs)     as carbs
-            ,sum(fat)       as fat
+            COALESCE(sum(calories),0)  as calories
+            ,COALESCE(sum(protein),0)   as protein
+            ,COALESCE(sum(carbs),0)    as carbs
+            ,COALESCE(sum(fat),0)       as fat
         from food_tracker 
         where 
             user_id = $1
             and recorded_at = current_date;
-        `,
-		[userId]
-	);
+    `;
+
+	const { rows } = await pool.query(sql, [userId]);
+	console.log(rows);
+	if (!rows) {
+		return {macros: {calories: 0, protein: 0, carbs: 0, fat: 0}};
+	}
     
 	return rows[0];
 
@@ -65,8 +70,7 @@ export async function getTodayMacros(userId: string) {
 // get current users goals for today
 export async function getTodayGoals(userId: string) {
     
-	const { rows } = await pool.query(
-		`
+	const sql = `
         select 
             calories
             ,protein
@@ -77,9 +81,33 @@ export async function getTodayGoals(userId: string) {
             user_id = $1
             and date_to is null
             ;
-        `,
-		[userId]
-	);
+    `;
+
+	const { rows } = await pool.query(sql, [userId]);
+
+	if (!rows) {
+		return { goals: null };
+	}
+    
+	return rows[0];
+    
+}
+
+// get current users goals for today
+export async function setMacroGoals(userId: string, goal: MacroGoalCreate) {
+    console.log(`USERID: ${userId}, GOAL: ${goal}`);
+	
+	const sql = `
+		INSERT INTO macro_goals (calories, protein, carbs, fat, user_id, date_from) 
+		VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)
+		RETURNING id, calories, protein, carbs, fat;
+    `;
+
+	const { rows } = await pool.query<MacroGoal>(sql, [goal.calories, goal.protein, goal.carbs, goal.fat, userId]);
+
+	if (!rows) {
+		return R.serverError("Server was not able to process new Goal, please retry");
+	}
     
 	return rows[0];
     

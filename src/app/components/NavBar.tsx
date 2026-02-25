@@ -11,7 +11,7 @@ export default function NavBar() {
 
 	const isMarketing = pathname === "/";
 
-	const mobileValue = pathname === "/foods" || pathname === "/home" ? pathname : "/home";
+	const mobileValue = pathname === "/tracking" || pathname === "/home" ? pathname : "/home";
 
 	return (
 		<header className="sticky top-0 z-30 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur bg-white/60 dark:bg-slate-900/60">
@@ -34,8 +34,8 @@ export default function NavBar() {
 					<Link href="/home" className="hover:text-slate-900 dark:hover:text-white">
 					Home
 					</Link>
-					<Link href="/foods" className="hover:text-slate-900 dark:hover:text-white">
-					Logging
+					<Link href="/tracking" className="hover:text-slate-900 dark:hover:text-white">
+					Tracking
 					</Link>
 				</nav>
 
@@ -52,7 +52,7 @@ export default function NavBar() {
 					aria-label="Navigate"
 					>
 					<option value="/home">Home</option>
-					<option value="/foods">Logging</option>
+					<option value="/tracking">Tracking</option>
 					</select>
 				</div>
 				</>

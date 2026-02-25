@@ -1,40 +1,34 @@
 // lib/services/food.ts
 import pool from "@/lib/db/db";
-import { FoodInput } from "../schemas/food";
-import { FoodCreate } from "../dataTypes";
+import { FoodCreate, Food } from "../dataTypes";
 
 // get recent foods for selection
 export async function getRecentFood(userId: string, meal: number | null, limit = 10) {
-
+	
 	const sql = `
-	SELECT *
-	FROM (
-		SELECT DISTINCT ON (food_id)
-			food_id					          AS id,
-			food_name				          AS name,
-			brand,
-			food_serving_size          AS serving_size,
-			food_serving_unit          AS serving_unit,
-			food_protein_per_serving		AS protein,
-			food_carbs_per_serving		  AS carbs,
-			food_fat_per_serving			  AS fat,
-			food_calories_per_serving	AS calories,
-			recorded_at                AS last_used,
-			entry_id                   AS last_entry_id,
-			meal,
-			meal_name
-		FROM food_log_v
-		WHERE user_id = $1::uuid
-		AND ($2::int IS NULL OR meal = $2::int)
-		ORDER BY food_id, recorded_at DESC, entry_id DESC
-	) x
-	ORDER BY x.last_used DESC, x.last_entry_id DESC
-	LIMIT $3::int;
+		SELECT DISTINCT ON (v.food_id)
+			v.food_id     AS id,
+			v.food_name   AS name,
+			v.food_serving_size  AS serving_size,
+			v.food_serving_unit  AS serving_unit,
+			v.food_protein_per_serving  AS protein,
+			v.food_carbs_per_serving    AS carbs,
+			v.food_fat_per_serving      AS fat,
+			v.food_calories_per_serving AS calories,
+			v.brand
+		FROM food_log_v v
+		WHERE 
+			v.user_id = $1
+			AND v.meal = $2
+		ORDER BY 
+			v.food_id, 
+			v.recorded_at DESC
+		LIMIT $3;
 	`;
 
 	const params = [userId, meal ?? null, limit];
 
-	const { rows } = await pool.query(sql, params);
+	const { rows } = await pool.query<Food[]>(sql, params);
 
 	return rows;
 
@@ -45,8 +39,8 @@ export async function getRecentFood(userId: string, meal: number | null, limit =
 export async function addNewFood(food: FoodCreate) {
 	console.log(food);
 	const sql = `
-	insert into food (name, brand, barcode, serving_size, serving_unit, serving_type, protein, carbs, fat, calories) values
-  		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+	insert into food (name, brand, barcode, serving_size, serving_unit, serving_type, protein, carbs, fat, calories, serving_metric_size, serving_metric_unit) values
+  		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 	`;
 
 	const params = [food.name, 
@@ -58,7 +52,9 @@ export async function addNewFood(food: FoodCreate) {
 					food.protein,
 					food.carbs, 
 					food.fat, 
-					food.calories
+					food.calories,
+					food.serving_metric_size,
+					food.serving_metric_unit
 	];
 
 	const { rows } = await pool.query(sql, params);

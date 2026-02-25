@@ -17,21 +17,24 @@ import {
 	Pie,
 	Cell,
 } from "recharts";
-import { WeightPoint, DayMacros, TodayMacros, MacroGoal } from "@/lib/dataTypes";
+import { WeightPoint, DayMacros, TodayMacros, MacroGoal, MacroGoalCreate } from "@/lib/dataTypes";
 import { fetchHomePagePayload } from "@/lib/api/payloads/home";
 import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
 import AddWeightModal from "@/app/components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
 import AddFood from "@/app/components/Modals/AddFood";
 import { useFoodController } from "@/lib/hooks/useFoodController";
+import { useMacroController } from "@/lib/hooks/useMacroController";
+import AddMacroGoal from "@/app/components/Modals/AddMacroGoal";
 
 export default function HomePage() {
 
 	const fc = useFoodController();
+	const mc = useMacroController();
 
 	// state values
 	const [loading, setLoading] = useState(true);
-	const [goal, setGoal] = useState<MacroGoal>(DEFAULT_GOAL);
+	const [goal, setGoal] = useState<MacroGoal | null>(null);
 	const [today, setToday] = useState<TodayMacros>(DEFAULT_TODAY);
 	const [week, setWeek] = useState<DayMacros[]>([]);
 	const [weight, setWeight] = useState<WeightPoint[]>([]);
@@ -44,12 +47,26 @@ export default function HomePage() {
 		let isMounted = true;
 		async function loadTrend() {
 			try {
-				const HomePage = await fetchHomePagePayload();
-				setWeight(HomePage.weight);
-				setShowWeight(HomePage.weight.length > 0);
+				const payload = await fetchHomePagePayload();
+
+				if (!payload.ok) {
+					return;
+				}
+
+				const data = payload.data;
+
+				if (!data) {
+					return;
+				}
+
+				if (data.weight) {
+					setWeight(data.weight);
+					setShowWeight(true);
+				}
+				
+				setGoal(data.goals ?? null);
 				//setWeek(HomePage.macros);
-				//setToday(HomePage.today);
-				//setGoal(HomePage.goals);
+				setToday(data.today ?? DEFAULT_TODAY);
 			} catch (err) {
 				console.error(err);
 			} finally {
@@ -73,6 +90,19 @@ export default function HomePage() {
 		setShowAdd(true);
 	}
 
+	// local handler
+	async function handleGoalCreate(goalCreate: MacroGoalCreate) {
+
+		const created = await mc.onGoalCreate(goalCreate);
+
+		setGoal(created);
+
+		mc.closeGoalModal();
+
+		return created;
+
+	}
+
 	// handles updating or adding weight
 	async function handleConfirm({ date, weight }: { date: string; weight: number }) {
 
@@ -89,11 +119,12 @@ export default function HomePage() {
 	}
 
 	// Progress calculations
-	const proteinPct = Math.min(100, Math.round((today.protein / goal.protein) * 100));
-	const carbsPct = Math.min(100, Math.round((today.carbs / goal.carbs) * 100));
-	const fatPct = Math.min(100, Math.round((today.fat / goal.fat) * 100));
-	const calsPct = Math.min(100, Math.round((today.calories / goal.calories) * 100));
-
+	const proteinPct = Math.min(100, Math.round((today.protein / (goal?.protein ?? 0)) * 100));
+	const carbsPct = Math.min(100, Math.round((today.carbs / (goal?.carbs ?? 0)) * 100));
+	const fatPct = Math.min(100, Math.round((today.fat / (goal?.fat ?? 0)) * 100));
+	const calsPct = Math.min(100, Math.round((today.calories / (goal?.calories ?? 0)) * 100));
+	
+	/*
 	const donutData = useMemo(
 
 		() => [
@@ -116,6 +147,8 @@ export default function HomePage() {
 		[today, goal]
 
 	);
+	*/
+
 
   	const donutColors = ["#0ea5e9", "#22c55e", "#f59e0b"]; // sky, green, amber
 
@@ -124,8 +157,9 @@ export default function HomePage() {
 		{/* Top bar */}
 		<main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
 			{/* Greeting + quick add */}
-			{/*
+			
 			<section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+				{/*
 			<div className="lg:col-span-3 rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
 				<div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
 				<div>
@@ -139,31 +173,54 @@ export default function HomePage() {
 				</div>
 			</div>
 			*/}
+			
 			{/* Today ring summary */}
-			{/*
+			
 			<div className="rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/70 backdrop-blur p-6">
-				<div className="text-sm font-medium text-slate-900 dark:text-white">Today</div>
-				<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-				<div className="space-y-1">
-					<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Calories</span><span>{today.calories}/{goal.calories}</span></div>
-					<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-slate-900 dark:bg-white" style={{ width: `${calsPct}%` }} /></div>
-				</div>
-				<div className="space-y-1">
-					<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Protein</span><span>{today.protein}/{goal.protein}g</span></div>
-					<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-sky-500" style={{ width: `${proteinPct}%` }} /></div>
-				</div>
-				<div className="space-y-1">
-					<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Carbs</span><span>{today.carbs}/{goal.carbs}g</span></div>
-					<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-emerald-500" style={{ width: `${carbsPct}%` }} /></div>
-				</div>
-				<div className="space-y-1">
-					<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Fat</span><span>{today.fat}/{goal.fat}g</span></div>
-					<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-amber-500" style={{ width: `${fatPct}%` }} /></div>
-				</div>
-				</div>
+				{goal ? (
+					<>
+					<div className="text-sm font-medium text-slate-900 dark:text-white">Today</div>
+					
+					<div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Calories</span><span>{calsPct}%</span></div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-slate-900 dark:bg-white" style={{ width: `${calsPct}%` }} /></div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.calories}/{Number(goal.calories)}</span></div>
+					</div>
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Protein</span><span>{proteinPct}%</span></div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-sky-500" style={{ width: `${proteinPct}%` }} /></div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.protein}/{Number(goal.protein)}g</span></div>
+					</div>
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Carbs</span><span>{carbsPct}%</span></div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-emerald-500" style={{ width: `${carbsPct}%` }} /></div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.carbs}/{Number(goal.carbs)}g</span></div>
+					</div>
+					<div className="space-y-1">
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Fat</span><span>{fatPct}%</span></div>
+						<div className="h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-2 bg-amber-500" style={{ width: `${fatPct}%` }} /></div>
+						<div className="flex justify-between text-slate-600 dark:text-slate-300"><span>{today.fat}/{Number(goal.fat)}g</span></div>
+					</div>
+					</div>
+					</>
+				) : (
+					<>
+					<button
+						className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
+							text-white px-3 py-1.5 text-sm font-medium 
+							shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
+							hover:from-indigo-400 hover:to-purple-400 
+							active:scale-95 transition"
+						onClick={mc.openGoalModal}
+					>
+					Click to add macro Goal!
+					</button>
+					</>
+				)}
 			</div>
 			</section>
-				*/}
+				
 			{/* Charts row 1: Donut + Weekly Macros */}
 			{/*
 			<section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -350,6 +407,11 @@ export default function HomePage() {
 			onClose={fc.closeFoodModal}
 			onOpen={fc.openFoodModal}
 			onCreate={fc.onCreate}
+		/>
+		<AddMacroGoal
+			isOpen={mc.goalModalOpen}
+			onClose={mc.closeGoalModal}
+			onCreate={handleGoalCreate}
 		/>
 		</div>
 	);

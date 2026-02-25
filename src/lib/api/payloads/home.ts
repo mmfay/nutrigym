@@ -1,20 +1,8 @@
 // lib/api/macros/macros.ts
 import { HomePayload } from "@/lib/dataTypes";
+import { ApiResult } from "@/lib/dataTypes/results";
+import { getJSON } from "../submissions";
 
-export async function fetchHomePagePayload(): Promise<HomePayload> {
-
-	const res = await fetch("/api/home", {
-		method: "GET",
-		credentials: "include",
-		cache: "no-store", // optional: avoid caching
-	});
-
-	if (!res.ok) {
-		throw new Error(`Failed to fetch homepage payload: ${res.status} ${res.statusText}`);
-	}
-
-	const data = (await res.json()) as HomePayload;
-
-	return data;
-	
+export async function fetchHomePagePayload(): Promise<ApiResult<HomePayload>> {
+	return getJSON("/api/home", {});	
 }

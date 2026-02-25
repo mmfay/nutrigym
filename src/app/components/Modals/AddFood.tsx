@@ -30,6 +30,10 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 	const [unit, setUnit] = useState<string>("g");
 	const [servingMode, setServingMode] = useState<"COUNT" | "MEASURE">("COUNT");
 
+	const [hasMetric, setHasMetric] = useState(false);
+	const [metricQty, setMetricQty] = useState<string>("");
+	const [metricUnit, setMetricUnit] = useState<"g" | "ml">("g");
+
 	// Collapsible states
 	const [openBasic, setOpenBasic] = useState(true);
 	const [openNutrition, setOpenNutrition] = useState(false);
@@ -44,8 +48,12 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 		if (qty || unit !== "g" || servingMode !== "COUNT") setOpenServing(true);
 	}, [qty, unit, servingMode]);
 
+	useEffect(() => {
+		if (hasMetric || metricQty) setOpenServing(true);
+	}, [hasMetric, metricQty]);
+
 	const inputBase =
-		"w-full rounded-lg border px-3 py-2 text-sm " +
+		"w-full rounded-lg border px-3 py-2 text-base " +
 		"bg-white dark:bg-slate-900/60 " +
 		"text-slate-900 dark:text-slate-100 placeholder:text-slate-400 " +
 		"border-slate-300 dark:border-slate-700 " +
@@ -58,6 +66,10 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 	// submission of the new item
 	function handleSubmit(e: React.FormEvent) {
 			e.preventDefault();
+
+			const mq = toNum(metricQty);
+  			const includeMetric = hasMetric && mq !== null && mq > 0;
+
 			onCreate({
 				name,
 				brand,
@@ -67,7 +79,10 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 				carbs: Number(carbs),
 				protein: Number(protein),
 				serving_size: Number(qty),
-				serving_unit: unit
+				serving_unit: unit,
+				...(includeMetric
+				? { serving_metric_size: mq, serving_metric_unit: metricUnit }
+				: {}),
 			});
 
 		onClose();
@@ -79,6 +94,7 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 		const f = toNum(fat);
 		const c = toNum(carbs);
 		const p = toNum(protein);
+		const mq = toNum(metricQty);
 
 		const errors: Partial<Record<keyof FoodInput | "form" | "servingMeta", string>> = {};
 
@@ -86,6 +102,9 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 		if (!nonNeg(f)) errors.fat = "Fat must be 0 or more.";
 		if (!nonNeg(c)) errors.carbs = "Carbs must be 0 or more.";
 		if (!nonNeg(p)) errors.protein = "Protein must be 0 or more.";
+		if (hasMetric && !(mq !== null && mq > 0)) {
+			errors.servingMeta = "Metric qty must be greater than 0 if enabled.";
+		}
 
 		// Heuristic kcal check
 		if (nonNeg(cals) && nonNeg(f) && nonNeg(c) && nonNeg(p)) {
@@ -328,7 +347,7 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 						type="number"
 						inputMode="decimal"
 						min={0}
-						step="0.5"
+						step="0.01"
 						className={inputBase}
 						value={qty}
 						onChange={(e) => setQty(e.target.value)}
@@ -363,7 +382,9 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 						<option value="gal">gal</option>
 						<option value="each">each</option>
 						<option value="piece">piece</option>
+						<option value="piece">bar</option>
 						<option value="slice">slice</option>
+						<option value="slice">scoop</option>
 						<option value="packet">packet</option>
 						<option value="can">can</option>
 						<option value="bottle">bottle</option>
@@ -371,6 +392,72 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 						</select>
 					</div>
 					</div>
+					<div className="rounded-2xl border border-slate-200/60 dark:border-slate-700/60 p-4 bg-white/60 dark:bg-slate-900/40">
+					<div className="flex items-center justify-between gap-3">
+					<div>
+					<p className="text-sm font-medium text-slate-900 dark:text-white">
+						Metric equivalent (optional)
+					</p>
+					<p className="text-xs text-slate-600 dark:text-slate-300">
+						If the label shows something like “(30g)” or “(240mL)”.
+					</p>
+					</div>
+
+					<label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+					<input
+						type="checkbox"
+						checked={hasMetric}
+						onChange={(e) => {
+						const on = e.target.checked;
+						setHasMetric(on);
+						if (!on) {
+							setMetricQty("");
+							setMetricUnit("g");
+						}
+						}}
+					/>
+					Add
+					</label>
+				</div>
+
+				{hasMetric && (
+					<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div>
+						<label className={labelBase} htmlFor="metricQty">
+						Metric qty
+						</label>
+						<input
+						id="metricQty"
+						type="number"
+						inputMode="decimal"
+						min={0}
+						step="0.1"
+						className={inputBase}
+						value={metricQty}
+						onChange={(e) => setMetricQty(e.target.value)}
+						onBlur={() => setTouched((t) => ({ ...t, servingMeta: true }))}
+						placeholder={metricUnit === "g" ? "e.g., 30" : "e.g., 240"}
+						/>
+					</div>
+
+					<div>
+						<label className={labelBase} htmlFor="metricUnit">
+						Metric unit
+						</label>
+						<select
+						id="metricUnit"
+						className={inputBase}
+						value={metricUnit}
+						onChange={(e) => setMetricUnit(e.target.value as "g" | "ml")}
+						onBlur={() => setTouched((t) => ({ ...t, servingMeta: true }))}
+						>
+						<option value="g">g</option>
+						<option value="ml">ml</option>
+						</select>
+					</div>
+					</div>
+				)}
+				</div>
 				</div>
 				</Section>
 

@@ -7,6 +7,7 @@ import { Meal, mealForNow } from "@/lib/utils/meal";
 import AddFood from "@/app/components/Modals/AddFood";
 import { useFoodController } from "@/lib/hooks/useFoodController";
 import Tag from "@/app/components/Tag";
+import MacroBarChart from "@/app/components/Charts/BarChart";
 
 // ---------- Types ----------
 type Mode = "recent" | "all";
@@ -44,25 +45,25 @@ export default function FoodPicker() {
 
 	const [mode, setMode] = useState<Mode>("recent");
 	const [query, setQuery] = useState("");
-	const [recentMealFilter, setRecentMealFilter] = useState<Meal>(mealForNow());
+	const [recentMealFilter, setRecentMealFilter] = useState<Meal>("breakfast");
 	const debouncedQuery = useDebouncedValue(query, 450);
 	const requestSeq = useRef(0);
 
-	// Logged foods per meal
-	const [log, setLog] = useState<Record<Meal, { food: FoodTracked; servings: number }[]>>({
-		breakfast: [], lunch: [], dinner: [], snack: []
-	});
+	const mealId = useMemo(() => MEALS.indexOf(recentMealFilter), [recentMealFilter]);
 
 	// Bottom sheet
 	const [sheet, setSheet] = useState<{ open: boolean; food?: Food }>({ open: false });
 
 	// Recents fetched from backend
-	const [recentsByMeal, setRecentsByMeal] = useState<Partial<Record<Meal, Food[]>>>({});
-	const [loadingRecents, setLoadingRecents] = useState<Partial<Record<Meal, boolean>>>({});
-	const [errorRecents, setErrorRecents] = useState<Partial<Record<Meal, string>>>({});
 	const [date, setDate] = useState<string>(todayLocalISO());
 	const [foods, setFoods] = useState<Food[]>();
 	const [loadingAll, setLoadingAll] = useState(false);
+
+	useEffect(() => {
+		// run only on client
+		setRecentMealFilter(mealForNow());
+		setDate(todayLocalISO());
+	}, []);
 
 	const grouped = useMemo(() => {
 
@@ -79,15 +80,18 @@ export default function FoodPicker() {
 	}, [fc.trackedFood]);
 
 	// fetch recents when the meal filter changes
-	/*
 	useEffect(() => {
-		void ensureRecents(recentMealFilter);
-	}, [recentMealFilter]);
-	*/
+
+		if (mode !== "recent") return;
+		if (mealId < 0) return;
+		fc.getRecents(mealId);
+
+	}, [mealId]);
 
 	// fetch tracked foods for date
 	useEffect(() => {
 
+		if (!date) return;
 		fc.getFoodLog(date);
 
 	}, [date]);
@@ -136,10 +140,14 @@ export default function FoodPicker() {
 
 	// results for recent tab
 	const recentFoods = useMemo(() => {
-		const list = recentsByMeal[recentMealFilter] ?? [];
+		const raw = fc.recentsByMeal?.[mealId];
+
+		// Force it to be an array no matter what the backend/controller stored.
+		const list: Food[] = Array.isArray(raw) ? raw : [];
+
 		const q = query.toLowerCase().trim();
-		return q ? list.filter(f => nameIncludes(f, q)) : list;
-	}, [recentsByMeal, recentMealFilter, query]);
+		return q ? list.filter((f) => nameIncludes(f, q)) : list;
+	}, [fc.recentsByMeal, mealId, query]);
 
 	// results for all tab
 	const allFoods = useMemo(() => {
@@ -171,8 +179,6 @@ export default function FoodPicker() {
 			console.log("An error has occurred", err);
 		}
 
-		setLog(prev => ({ ...prev, [meal]: [...prev[meal], { food, servings }] }));
-
 	}
 
 	// Layout chrome adjustment if you have a fixed top bar
@@ -188,7 +194,7 @@ export default function FoodPicker() {
 			<div className="md:h-full md:overflow-y-auto md:pr-1">
 			<div className="sticky top-0 z-10 pb-2 bg-gray-100 dark:bg-gray-900">
 				<div className="flex items-center justify-between mb-2">
-				<h1 className="text-2xl font-bold">Foods</h1>
+				<h1 className="text-2xl font-bold">Tracking</h1>
 				<button
 					onClick={fc.openFoodModal}
 					className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -262,16 +268,19 @@ export default function FoodPicker() {
 			<div className="mt-2 space-y-2">
 				{mode === "recent" && (
 				<>
-					{loadingRecents[recentMealFilter] && (
+				
+					{fc.loadingRecents?.[mealId] && (
 					<div className="text-sm text-gray-500">Loading…</div>
 					)}
-					{errorRecents[recentMealFilter] && (
-					<div className="text-sm text-red-500">{errorRecents[recentMealFilter]}</div>
+					{fc.errorRecents?.[mealId] && (
+					<div className="text-sm text-red-500">{fc.errorRecents[mealId]}</div>
 					)}
-					{!loadingRecents[recentMealFilter] && recentFoods.length === 0 && (
+					{!fc.loadingRecents?.[mealId] && recentFoods.length === 0 && (
 					<Empty label="No recent foods found." />
 					)}
-					{!loadingRecents[recentMealFilter] &&
+					{!fc.loadingRecents?.[mealId] &&
+
+					
 					recentFoods.map(f => (
 						<FoodCard
 						key={f.id}
@@ -365,6 +374,7 @@ export default function FoodPicker() {
 				onOpen={fc.openFoodModal}
 				onCreate={fc.onCreate}
 			/>
+			<MacroBarChart open={true} />
 		</div>
 
 		{/* Bottom sheet: add food */}
