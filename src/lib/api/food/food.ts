@@ -20,7 +20,7 @@ export async function fetchRecentByMeal(meal: string): Promise<Food[]> {
 }
 
 // search for food
-export async function searchFood(food: string): Promise<Food[]> {
+export async function searchFoodOld(food: string): Promise<Food[]> {
 
     const checkFood = food ?? "";
 
@@ -37,6 +37,13 @@ export async function searchFood(food: string): Promise<Food[]> {
     
     return data;
 
+}
+
+/**
+ * Gets the food log for a user on a specific date
+ */
+export async function searchFood(text: String): Promise<ApiResult<Food[]>> {
+	return getJSON("/api/food/search", { text });
 }
 
 /**

@@ -117,9 +117,10 @@ export default function FoodPicker() {
 
             try {
 
-                const data = await searchFood(q); // no AbortController
-                
-                if (requestSeq.current === mySeq) setFoods(data);
+				const data = await fc.onSearch(q);
+
+                if (requestSeq.current === mySeq) 
+					setFoods(data);
 
             } catch (err) {
 
@@ -151,6 +152,7 @@ export default function FoodPicker() {
 
 	// results for all tab
 	const allFoods = useMemo(() => {
+		console.log("foods is array?", Array.isArray(foods), foods);
 		const listAll = foods ?? [];
 		const q = query.toLowerCase().trim();
 		return q ? listAll.filter(f => nameIncludes(f, q)) : listAll;
@@ -255,12 +257,12 @@ export default function FoodPicker() {
 				)}
 
 				{mode === "all" && (
-				<input
-					className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
-					placeholder="Search all foods…"
-					value={query}
-					onChange={(e) => setQuery(e.target.value)}
-				/>
+					<input
+						className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+						placeholder="Search all foods…"
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+					/>
 				)}
 			</div>
 

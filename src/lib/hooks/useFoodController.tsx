@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { createFood, logFood, fetchFoodLog, deleteFoodLog, getRecentFoods } from "../api/food/food";
+import { createFood, logFood, fetchFoodLog, deleteFoodLog, getRecentFoods, searchFood } from "../api/food/food";
 import { FoodCreate, Food, FoodTracked } from "../dataTypes";
 
 export type FoodsController = {
@@ -15,6 +15,7 @@ export type FoodsController = {
 	errorRecents: Partial<Record<number, string>>;
 
 	onCreate: (food: FoodCreate) => Promise<Food>;
+	onSearch: (text: string) => Promise<Food[]>;
 	onLogFood: (food: Food, meal: number, date: string) => Promise<void>;
 	getFoodLog: (logDate: string) => Promise<void>;
 	getRecents: (meal: number) => Promise<void>;
@@ -174,14 +175,30 @@ export function useFoodController(): FoodsController {
 		const res = await deleteFoodLog(id);
 
 		if (!res.ok) {
-		setError(res.error);
-		setLoading(false);
-		return;
+			setError(res.error);
+			setLoading(false);
+			return;
 		}
 
 		setTrackedFood((prev) => prev.filter((x) => x.id !== id));
 		setLoading(false);
 	}, []);
+
+	// searches for a food 
+	const onSearch = useCallback(
+		async (text: string): Promise<Food[]> => {
+
+			const res = await searchFood(text);
+							
+			if (!res.ok) {
+				setError(res.error);
+				throw new Error(res.error);
+			}
+			
+			return res.data as Food[];
+		},
+		[]
+	);
 
 	// opens food modal
 	function openFoodModal() {
@@ -201,6 +218,7 @@ export function useFoodController(): FoodsController {
 		errorRecents,
 		loadingRecents,
 		onCreate,
+		onSearch,
 		onLogFood,
 		removeFoodLog,
 		getFoodLog,

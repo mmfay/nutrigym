@@ -79,7 +79,7 @@ export async function findFoods(textStr: string) {
 
 	const params = [textStr];
 
-	const { rows } = await pool.query(sql, params);
+	const { rows } = await pool.query<Food[]>(sql, params);
 
 	return rows;
 
