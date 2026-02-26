@@ -1,5 +1,7 @@
 // lib/api/weight.ts
-import { WeightPoint } from "@/lib/dataTypes";
+import { WeightCreate, Weight, WeightPoint } from "@/lib/dataTypes";
+import { postJSON } from "../submissions";
+import { ApiResult } from "@/lib/dataTypes/results";
 
 // fetches date and weight
 export async function fetchWeightTrend(): Promise<WeightPoint[]> {
@@ -15,25 +17,7 @@ export async function fetchWeightTrend(): Promise<WeightPoint[]> {
     return res.json();
 }
 
-// posts weight on date, returns array of weights for graph
-export async function addNewWeight(weight: number, dayOfWeight: string): Promise<WeightPoint[]> {
-
-    const res = await fetch("/api/weight/add", {
-		method: "POST",
-		credentials: "include", // keep cookies/session if you’re using them
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			weight,
-			date: dayOfWeight,
-		}),
-    });
-
-    if (!res.ok) {
-		throw new Error(`Failed to add new weight: ${res.statusText}`);
-    }
-
-    return res.json();
-
+// posts weight on date, returns new weight
+export async function addNewWeight(newWeight: WeightCreate): Promise<ApiResult<Weight>> {
+	return postJSON("/api/weight/add", newWeight);
 }

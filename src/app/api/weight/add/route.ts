@@ -1,6 +1,7 @@
 // app/api/weight/add/route.ts
 import { NextResponse } from "next/server";
 import { addWeight } from "@/lib/services/weight";
+import { ResponseBuilder as R } from "@/lib/utils/response";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 import { getUser, SESSION_COOKIE } from "@/lib/auth/session";
@@ -23,38 +24,21 @@ export async function POST(req: Request) {
 
     }
 
-    let body;
+    let body = await req.json();
 
-    // check there is a body
-    try {
-        body = await req.json();
-    } catch {
-        return NextResponse.json(
-            { ok: false, message: "Invalid JSON body" },
-            { status: 400 }
-        );
-    }
+	if (!body) {
+		R.badRequest("Invalid JSON body");
+	}
 
     const { date, weight } = body;
 
     // check there is a date/weight
     if (!date || typeof weight !== "number") {
-        return NextResponse.json(
-            { ok: false, message: "Missing date or weight" },
-            { status: 400 }
-        );
+        return R.badRequest("Missing date or Weight");
     }
 
-    // try to add weight
-    try {
-        const trend = await addWeight(userId, date, weight); 
-        return NextResponse.json(trend);
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json(
-            { ok: false, message: "Failed to add weight" },
-            { status: 500 }
-        );
-    }
+    const newWeight = await addWeight(userId, date, weight); 
+
+	return R.ok(newWeight, "Weight successfully added");
 
 }
