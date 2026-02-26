@@ -19,18 +19,20 @@ import {
 } from "recharts";
 import { WeightPoint, DayMacros, TodayMacros, MacroGoal, MacroGoalCreate } from "@/lib/dataTypes";
 import { fetchHomePagePayload } from "@/lib/api/payloads/home";
-import { DEFAULT_GOAL, DEFAULT_TODAY } from "@/lib/dataTypes";
+import { DEFAULT_GOAL, DEFAULT_TODAY, WeightCreate } from "@/lib/dataTypes";
 import AddWeightModal from "@/app/components/AddWeight";
 import { addNewWeight } from "@/lib/api/weight/weight";
 import AddFood from "@/app/components/Modals/AddFood";
 import { useFoodController } from "@/lib/hooks/useFoodController";
 import { useMacroController } from "@/lib/hooks/useMacroController";
 import AddMacroGoal from "@/app/components/Modals/AddMacroGoal";
+import { useWeightController } from "@/lib/hooks/useWeightController";
 
 export default function HomePage() {
 
 	const fc = useFoodController();
 	const mc = useMacroController();
+	const wc = useWeightController();
 
 	// state values
 	const [loading, setLoading] = useState(true);
@@ -91,7 +93,7 @@ export default function HomePage() {
 		setShowAdd(true);
 	}
 
-	// local handler
+	// local handler for macro goals
 	async function handleGoalCreate(goalCreate: MacroGoalCreate) {
 
 		const created = await mc.onGoalCreate(goalCreate);
@@ -104,19 +106,30 @@ export default function HomePage() {
 
 	}
 
-	// handles updating or adding weight
-	async function handleConfirm({ date, weight }: { date: string; weight: number }) {
+	// local handler for weight
+	async function handleWeightCreate(weightCreate: WeightCreate) {
+		
+		const created = await wc.onCreate(weightCreate);
 
-		// update/add weight
-		try {
-			const data = await addNewWeight(weight, date);
-			setWeight(data);
-			setShowAdd(false);
-			setShowWeight(true);
-		} catch (err) {
-			alert("Failed to add weight, try again.");
-		}
+		const weightPoint: WeightPoint = {
+			weight: created.weight,
+			date: created.measured_at,
+		};
 
+		setWeight((prev) => {
+			const i = prev.findIndex((p) => p.date === weightPoint.date);
+
+			const next =
+			i === -1
+				? [...prev, weightPoint]
+				: prev.map((p, idx) => (idx === i ? weightPoint : p));
+
+			// keep sorted ascending by date
+			return next.sort((a, b) => a.date.localeCompare(b.date));
+		});
+
+		wc.closeWeightModal();
+		return created;
 	}
 
 	// Progress calculations
@@ -314,7 +327,7 @@ export default function HomePage() {
 					</h2>
 					{/* Right: Add button */}
 					<button
-						onClick={handleAddClick}
+						onClick={wc.openWeightModal}
 						className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 
 									text-white px-3 py-1.5 text-sm font-medium 
 									shadow-lg shadow-indigo-500/30 ring-1 ring-white/10 
@@ -396,9 +409,9 @@ export default function HomePage() {
 		)}
 		{/* Weight Modal shows when a user wants to add new weight */}
 		<AddWeightModal
-			isOpen={showAdd}
-			onClose={() => setShowAdd(false)}
-			onConfirm={handleConfirm}
+			isOpen={wc.weightModalOpen}
+			onClose={wc.closeWeightModal}
+			onCreate={handleWeightCreate}
 		/>
 		<AddFood
 			isOpen={fc.foodModalOpen}
