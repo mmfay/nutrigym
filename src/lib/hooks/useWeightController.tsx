@@ -43,7 +43,7 @@ export function useWeightController(): WeightController {
 			setError(null);
 
 			const res = await addNewWeight(weight);
-			alert('hello');
+			
 			if (!res.ok) {
 				setError(res.error);
 				throw new Error(res.error);
