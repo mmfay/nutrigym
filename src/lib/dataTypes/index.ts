@@ -118,4 +118,15 @@ export type FoodInput = {
     barcode?: string;
 };
 
+export type WeightCreate = {
+	date: string; 
+    weight: number; 
+}
+
+export type Weight = {
+	id: number;
+	measured_at: string;
+	weight: number;
+}
+
 export type Input = Date | string | number;
