@@ -15,7 +15,9 @@ export async function getRecentFood(userId: string, meal: number | null, limit =
 			v.food_carbs_per_serving    AS carbs,
 			v.food_fat_per_serving      AS fat,
 			v.food_calories_per_serving AS calories,
-			v.brand
+			v.brand,
+			v.serving_metric_size,
+			v.serving_metric_unit
 		FROM food_log_v v
 		WHERE 
 			v.user_id = $1
@@ -48,7 +50,7 @@ export async function addNewFood(food: FoodCreate) {
 					food.barcode, 
 					food.serving_size, 
 					food.serving_unit,
-					'Count',
+					food.serving_type,
 					food.protein,
 					food.carbs, 
 					food.fat, 
