@@ -1,5 +1,5 @@
 // app/api/food/recent/dinner/route.ts
-import { NextResponse } from "next/server";
+import { ResponseBuilder as R } from "@/lib/utils/response";
 import { getUserID } from "@/lib/services/user";
 import { addNewFood } from "@/lib/services/food";
 
@@ -12,15 +12,11 @@ export async function POST(req: Request) {
 	const newFood = body.newFood;
 
 	if(!newFood) {
- 		return NextResponse.json({ success: false, error: "Missing name" }, { status: 400 });
+		return R.badRequest("missing food");
 	}
 	
 	await addNewFood(newFood);
 
-	const data = { success: true }
-
-	return NextResponse.json(data, {
-		headers: { "Cache-Control": "no-store" },
-	});
+	return R.ok(null,"Food Created Successfully");
 
 }

@@ -1,13 +1,12 @@
 "use client";
 import { useMemo, useState, useEffect, useRef } from "react";
-import { searchFood } from "@/lib/api/food/food";
-import { Food, FoodTracked } from "@/lib/dataTypes";
+import { Food } from "@/lib/dataTypes";
 import { todayLocalISO, formatShortDate } from "@/lib/utils/date";
 import { Meal, mealForNow } from "@/lib/utils/meal";
+import AddFoodToLog from "@/app/components/Modals/AddFoodToLog";
 import AddFood from "@/app/components/Modals/AddFood";
 import { useFoodController } from "@/lib/hooks/useFoodController";
 import Tag from "@/app/components/Tag";
-import MacroBarChart from "@/app/components/Charts/BarChart";
 
 // ---------- Types ----------
 type Mode = "recent" | "all";
@@ -287,7 +286,7 @@ export default function FoodPicker() {
 						<FoodCard
 						key={f.id}
 						food={f}
-						onClick={() => setSheet({ open: true, food: f })}
+						onClick={() => fc.openFoodLogModal(f)}
 						onQuickAdd={(meal) => addFood(f, meal, 1)}
 						/>
 					))}
@@ -298,7 +297,7 @@ export default function FoodPicker() {
 				<FoodCard
 					key={f.id}
 					food={f}
-					onClick={() => setSheet({ open: true, food: f })}
+					onClick={() => fc.openFoodLogModal(f)}
 					onQuickAdd={(meal) => addFood(f, meal, 1)}
 				/>
 				))}
@@ -324,51 +323,49 @@ export default function FoodPicker() {
 				{formatShortDate(date)}
 				</span>
 			</div>
+			<div className="space-y-4">
+			{MEALS.map(m => {
+				const c = mealColors[m];
+				const items = grouped[m];
+				const totalKcal = items.reduce((s, x) => s + Number(x.food.calories) * x.servings, 0);
 
-<div className="space-y-4">
-  {MEALS.map(m => {
-    const c = mealColors[m];
-    const items = grouped[m];
-    const totalKcal = items.reduce((s, x) => s + Number(x.food.calories) * x.servings, 0);
+				return (
+				<div
+					key={m}
+					className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700"
+				>
+					{/* Colored header */}
+					<div className={["px-4 py-2 border-b", c.bg, c.border].join(" ")}>
+					<div className="flex items-center justify-between">
+						<h2 className={["font-semibold capitalize", c.text].join(" ")}>{m}</h2>
+						<span className={["text-xs", c.muted].join(" ")}>{totalKcal} kcal</span>
+					</div>
+					</div>
 
-    return (
-      <div
-        key={m}
-        className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700"
-      >
-        {/* Colored header */}
-        <div className={["px-4 py-2 border-b", c.bg, c.border].join(" ")}>
-          <div className="flex items-center justify-between">
-            <h2 className={["font-semibold capitalize", c.text].join(" ")}>{m}</h2>
-            <span className={["text-xs", c.muted].join(" ")}>{totalKcal} kcal</span>
-          </div>
-        </div>
-
-        {/* Tag list */}
-        <div className="p-4">
-          {items.length === 0 ? (
-            <div className="text-xs text-gray-500 italic">
-              Tap a “+ {m}” chip on a food to add it here.
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {items.map((x, i) => (
-                <Tag
-                  key={`${x.food.id}-${i}`}
-                  label={`${x.food.name} × ${x.servings}`}
-                  sub={`${Number(x.food.calories) * x.servings} kcal`}
-                  colorClasses={`${c.border} ${c.text}`}
-                  onRemove={() => fc.removeFoodLog(x.food.id)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  })}
-</div>
-
+					{/* Tag list */}
+					<div className="p-4">
+					{items.length === 0 ? (
+						<div className="text-xs text-gray-500 italic">
+						Tap a “+ {m}” chip on a food to add it here.
+						</div>
+					) : (
+						<div className="flex flex-wrap gap-2">
+						{items.map((x, i) => (
+							<Tag
+							key={`${x.food.id}-${i}`}
+							label={`${x.food.name} × ${x.servings}`}
+							sub={`${Number(x.food.calories) * x.servings} kcal`}
+							colorClasses={`${c.border} ${c.text}`}
+							onRemove={() => fc.removeFoodLog(x.food.id)}
+							/>
+						))}
+						</div>
+					)}
+					</div>
+				</div>
+				);
+			})}
+			</div>
 			</div>
 			<AddFood
 				isOpen={fc.foodModalOpen}
@@ -376,20 +373,14 @@ export default function FoodPicker() {
 				onOpen={fc.openFoodModal}
 				onCreate={fc.onCreate}
 			/>
-			<MacroBarChart open={true} />
-		</div>
-
-		{/* Bottom sheet: add food */}
-		{sheet.open && sheet.food && (
-			<AddSheet
-			title={`Add ${sheet.food.name}`}
-			onClose={() => setSheet({ open: false })}
-			onAdd={(meal, servings) => {
-				addFood(sheet.food!, meal, servings);
-				setSheet({ open: false });
-			}}
+			<AddFoodToLog
+				isOpen={fc.foodLogModalOpen}
+				food={fc.selectedFoodToLog}
+				logDate={date}
+				onClose={fc.closeFoodLogModal}
+				onLog={fc.onLogFood}
 			/>
-		)}
+		</div>
 		</div>
 	);
 }

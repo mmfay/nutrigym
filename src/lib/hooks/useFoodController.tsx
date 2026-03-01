@@ -13,6 +13,7 @@ export type FoodsController = {
 	recentsByMeal: Partial<Record<number, Food[]>>;
 	loadingRecents: Partial<Record<number, boolean>>;
 	errorRecents: Partial<Record<number, string>>;
+	selectedFoodToLog: Food | null;
 
 	onCreate: (food: FoodCreate) => Promise<Food>;
 	onSearch: (text: string) => Promise<Food[]>;
@@ -24,7 +25,11 @@ export type FoodsController = {
 	openFoodModal: () => void;
 	closeFoodModal: () => void;
 
+	openFoodLogModal: (food: Food) => void;
+	closeFoodLogModal: () => void;
+
 	foodModalOpen: boolean;
+	foodLogModalOpen: boolean;
 };
 
 export function useFoodController(): FoodsController {
@@ -33,6 +38,9 @@ export function useFoodController(): FoodsController {
 	const [error, setError] = useState<string | null>(null);
 
 	const [foodModalOpen, setFoodModalOpen] = useState(false);
+	const [foodLogModalOpen, setFoodLogModalOpen] = useState(false);
+
+	const [selectedFoodToLog, setSelectedFoodToLog] = useState<Food | null>(null);
 
 	// data states
 	const [trackedFood, setTrackedFood] = useState<FoodTracked[]>([]);
@@ -210,6 +218,17 @@ export function useFoodController(): FoodsController {
 		setFoodModalOpen(false);
 	}
 
+	// opens food modal
+	function openFoodLogModal(food: Food) {
+		setSelectedFoodToLog(food);
+		setFoodLogModalOpen(true);
+	}
+
+	// closes food modal
+	function closeFoodLogModal() {
+		setFoodLogModalOpen(false);
+	}
+
 	return {
 		loading,
 		error,
@@ -217,6 +236,7 @@ export function useFoodController(): FoodsController {
 		recentsByMeal,
 		errorRecents,
 		loadingRecents,
+		selectedFoodToLog,
 		onCreate,
 		onSearch,
 		onLogFood,
@@ -225,6 +245,9 @@ export function useFoodController(): FoodsController {
 		getRecents,
 		openFoodModal,
 		closeFoodModal,
+		openFoodLogModal,
+		closeFoodLogModal,
 		foodModalOpen,
+		foodLogModalOpen,
 	};
 }

@@ -10,15 +10,7 @@ export const normalizeToday = (x: any): TodayMacros => ({
   fat:      num(x?.fat),
 });
 
-export const normalizeGoal = (x: any): MacroGoal => ({
-  calories: num(x?.calories),
-  protein:  num(x?.protein),
-  carbs:    num(x?.carbs),
-  fat:      num(x?.fat),
-});
-
 export const DEFAULT_TODAY: TodayMacros = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-export const DEFAULT_GOAL:  MacroGoal  = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
 export interface MacroGoal {
 	id: number;
@@ -62,15 +54,17 @@ export interface HomePayload {
 }
 
 export type Food = {
-    id: number,
-    name: string,
-    brand: string,
-    calories: number,
-    protein: number,
-    carbs: number,
-    fat: number,
-    serving_size: number,
-    serving_unit: string
+	id: number,
+	name: string,
+	brand: string,
+	calories: number,
+	protein: number,
+	carbs: number,
+	fat: number,
+	serving_size: number,
+	serving_unit: string,
+	serving_metric_size?: number; // e.g. 228
+	serving_metric_unit?: "g" | "ml";
 }
 
 export type FoodTracked = {
@@ -95,6 +89,7 @@ export type FoodCreate = {
 	fat: number;
 	carbs: number;
 	protein: number;
+	serving_type: "COUNT" | "MEASURE" ;
 	// “label serving”
 	serving_size: number;        // e.g. 1
 	serving_unit: string;        // e.g. "cup" or "each"

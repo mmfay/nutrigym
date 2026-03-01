@@ -5,10 +5,10 @@ import { Section } from "../Section";
 import { toNum, nonNeg } from "@/lib/services/numbers";
 
 type AddFoodProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpen?: () => void;
-  onCreate: (food: FoodCreate) => void;
+	isOpen: boolean;
+	onClose: () => void;
+	onOpen?: () => void;
+	onCreate: (food: FoodCreate) => void;
 };
 
 export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodProps) {
@@ -78,6 +78,7 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 				fat: Number(fat),
 				carbs: Number(carbs),
 				protein: Number(protein),
+				serving_type: servingMode,
 				serving_size: Number(qty),
 				serving_unit: unit,
 				...(includeMetric
