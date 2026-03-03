@@ -12,7 +12,7 @@ export async function GET() {
 	const sess = await getSession();
 
 	if (!sess) {
-		return NextResponse.json({ user: null, permissions: [] }, { status: 200 });
+		return R.unauthorized("Unauthorized");
 	}
 
 	// get user so we can check for permissions on request

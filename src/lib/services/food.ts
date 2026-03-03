@@ -40,6 +40,11 @@ export async function getRecentFood(userId: string, meal: number | null, limit =
 // get recent foods for selection
 export async function addNewFood(food: FoodCreate) {
 
+	const barcode =
+		food.barcode && food.barcode.trim() !== ""
+			? food.barcode.trim()
+			: null;
+
 	const sql = `
 	insert into food (name, brand, barcode, serving_size, serving_unit, serving_type, protein, carbs, fat, calories, serving_metric_size, serving_metric_unit) values
   		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
@@ -47,7 +52,7 @@ export async function addNewFood(food: FoodCreate) {
 
 	const params = [food.name, 
 					food.brand ?? 'Generic', 
-					food.barcode, 
+					barcode,
 					food.serving_size, 
 					food.serving_unit,
 					food.serving_type,

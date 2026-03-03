@@ -112,3 +112,25 @@ export async function deleteJSON<
 	return payload;
 	
 }
+
+/**
+ * POST multipart/form-data (for photos/files).
+ * IMPORTANT: Do NOT set Content-Type manually. The browser adds the boundary.
+ */
+export async function postFormData<T>(url: string, form: FormData): Promise<ApiResult<T>> {
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: form,
+      credentials: "include", // keep if your postJSON uses cookies/auth; remove if not needed
+    });
+
+    // Try to parse JSON either way (your API should always return JSON)
+    let json: any = null;
+
+	json = await res.json();
+
+
+	return json;
+
+}
