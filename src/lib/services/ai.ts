@@ -2,13 +2,7 @@ import OpenAI from "openai";
 
 import { ResponseBuilder as R } from "../utils/response";
 
-export type FoodMacros = {
-	foodName: string;
-	calories: number;
-	protein: number;
-	carbs: number;
-	fat: number;
-};
+import { FoodMacros } from "../dataTypes";
 
 const client = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,

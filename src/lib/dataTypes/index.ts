@@ -67,6 +67,14 @@ export type Food = {
 	serving_metric_unit?: "g" | "ml";
 }
 
+export type FoodMacros = {
+	foodName: string;
+	calories: number;
+	protein: number;
+	carbs: number;
+	fat: number;
+};
+
 export type FoodTracked = {
     id: number,
 	meal: number,

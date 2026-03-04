@@ -1,4 +1,4 @@
-import { Food, FoodTracked, FoodCreate, MealMacros} from "@/lib/dataTypes";
+import { Food, FoodTracked, FoodCreate, FoodMacros} from "@/lib/dataTypes";
 
 import { postJSON, getJSON, deleteJSON, postFormData } from "../submissions";
 import { ApiResult } from "@/lib/dataTypes/results";
@@ -84,7 +84,7 @@ export async function getRecentFoods(meal: number): Promise<ApiResult<Food[]>> {
 /**
  * Post Photo to AI to get Macros
  */
-export async function getMacroData(photo: Blob): Promise<ApiResult<Food>> {
+export async function getMacroData(photo: Blob): Promise<ApiResult<FoodMacros>> {
 	const fd = new FormData();
 	fd.append("image", photo, "photo.jpg");
 	return postFormData("/api/food/image", fd);
