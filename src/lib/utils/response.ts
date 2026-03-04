@@ -35,6 +35,10 @@ export class ResponseBuilder {
 		return this.json(null, 500, message);
 	}
 
+	static badGateway(message = "Issue with External Service") {
+		return this.json(null, 500, message);
+	}
+
 	static badRequest(message = "Bad Request") {
 		return this.json(null, 400, message);
 	}
