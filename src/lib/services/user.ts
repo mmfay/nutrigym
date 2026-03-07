@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getUser, SESSION_COOKIE } from "@/lib/auth/session";
 import { ResponseBuilder as R } from "../utils/response";
 
@@ -12,8 +11,14 @@ export async function getUserID(){
 
 		const res = R.unauthorized("You Must be Signed In.");
 		// Clear stale cookie so clients don’t keep sending it
-		res.cookies.set(SESSION_COOKIE, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
-		return res;
+		res.cookies.set(SESSION_COOKIE, "", { 
+			httpOnly: true, 
+			secure: true, 
+			sameSite: "lax", 
+			path: "/", 
+			maxAge: 0 
+		});
+		throw res;
 
 	}
 
