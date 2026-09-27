@@ -18,14 +18,17 @@ export async function getSession(): Promise<Session | null> {
     
     if (!sid) return null;
 
+	// disabled users are treated as signed out, even if their session hasn't expired
 	const sql = `
 		select 
-			user_id
-			,data
-        from auth_sessions
+			s.user_id
+			,s.data
+        from auth_sessions s
+		join users u on u.id = s.user_id
         where 
-			id = $1 
-			and expires_at > now()
+			s.id = $1 
+			and s.expires_at > now()
+			and u.is_enabled = true
         limit 1;
 	`;
 

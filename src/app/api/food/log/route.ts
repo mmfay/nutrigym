@@ -1,5 +1,5 @@
 // app/api/weight/add/route.ts
-import { logFood, getFoodLog, removeFood, logAIFood } from "@/lib/services/tracking";
+import { logFood, getFoodLog, removeFood, logAIFood, updateTrackedFood } from "@/lib/services/tracking";
 import { Food } from "@/lib/dataTypes";
 import { ResponseBuilder as R } from "@/lib/utils/response";
 export const runtime = "nodejs";
@@ -94,5 +94,50 @@ export async function DELETE(req: Request) {
 	await removeFood(userId, Number(id));
 		
 	return R.ok({}, "Food deleted Successfully");
+
+}
+
+// PATCH /api/food/log  { id, meal, serving_size }
+export async function PATCH(req: Request) {
+
+	try {
+
+		const userId = await getUserID();
+
+		const body = await req.json().catch(() => null);
+
+		const id = Number(body?.id);
+		const meal = Number(body?.meal);
+		const servingSize = Number(body?.serving_size);
+
+		if (!Number.isInteger(id) || id <= 0) {
+			return R.badRequest("Invalid log id.");
+		}
+
+		if (!Number.isInteger(meal) || meal < 0 || meal > 3) {
+			return R.badRequest("Invalid meal.");
+		}
+
+		if (!Number.isFinite(servingSize) || servingSize <= 0) {
+			return R.badRequest("Quantity must be greater than 0.");
+		}
+
+		const updated = await updateTrackedFood(userId, id, meal, servingSize);
+
+		if (!updated) return R.notFound("Logged food not found.");
+
+		return R.ok(updated, "Logged food updated");
+
+	} catch (err: any) {
+
+		if (err instanceof Response) return err;
+
+		// numeric column overflow
+		if (err?.code === "22003") return R.badRequest("Quantity is too large.");
+
+		console.error(err);
+		return R.serverError("Error updating logged food");
+
+	}
 
 }

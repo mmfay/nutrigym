@@ -138,6 +138,7 @@ export class Users extends Common {
 	static async findPage(
 		options: {
 			cursor?:     string | null;
+			search?:     string | null;
 			email?:      string | null;
 			name?:       string | null;
 			is_enabled?: boolean | null;
@@ -147,28 +148,25 @@ export class Users extends Common {
 
 		const temp = new Users(client);
 
-		// cursor stores { created_at, id } of the last seen row
-		let lastCreatedAt: string = "1970-01-01T00:00:00.000Z";
-		let lastId:        string = "00000000-0000-0000-0000-000000000000";
-
-		if (options.cursor) {
-			const payload = decodeCursor(options.cursor);
-			lastCreatedAt = payload.created_at as string;
-			lastId        = payload.id as string;
-		}
-
 		const builder = SQL()
 			.select(TABLE)
-			.columns("id", "email", "name", "is_enabled", "created_at")
-			.where("(created_at, id) > (?, ?)", lastCreatedAt, lastId);
+			.columns("id", "email", "name", "is_enabled", "is_sys_admin", "email_verified", "created_at", "created_at::text AS cursor_ts");
 
+		// cursor stores { created_at, id } of the last seen row (newest first).
+		// created_at is kept as raw text so it round-trips without JS Date timezone shifts.
+		if (options.cursor) {
+			const payload = decodeCursor(options.cursor);
+			builder.where("(created_at, id) < (?::timestamp, ?::uuid)", payload.created_at, payload.id);
+		}
+
+		if (options.search)     builder.where("(email ILIKE ? OR name ILIKE ?)", `%${options.search}%`, `%${options.search}%`);
 		if (options.email)      builder.where("email ILIKE ?", `%${options.email}%`);
 		if (options.name)       builder.where("name ILIKE ?",  `%${options.name}%`);
 		if (options.is_enabled != null) builder.where("is_enabled = ?", options.is_enabled);
 
 		const { sql, params } = builder
-			.orderBy("created_at")
-			.orderBy("id")
+			.orderBy("created_at", "DESC")
+			.orderBy("id", "DESC")
 			.limit(PAGE_SIZE + 1)
 			.build();
 
@@ -180,7 +178,7 @@ export class Users extends Common {
 
 		return {
 			items:      page.map(r => Users.fromRow(r, client)!),
-			nextCursor: hasMore ? encodeCursor({ created_at: last.created_at, id: last.id }) : null,
+			nextCursor: hasMore ? encodeCursor({ created_at: last.cursor_ts, id: last.id }) : null,
 			hasMore,
 		};
 

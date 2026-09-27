@@ -26,6 +26,7 @@ export async function getUserFromApiKey(req: Request): Promise<User | null> {
 		FROM api_keys ak
 		JOIN users u on u.id = ak.user_id
 		WHERE ak.key_hash = $1
+			AND u.is_enabled = true
 		LIMIT 1`,
 		[keyHash]
 	);

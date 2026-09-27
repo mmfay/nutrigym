@@ -207,6 +207,41 @@ export async function removeFood(userId: string, id: number) {
 
 }
 
+// updates the meal and quantity of a logged food.
+// macros are rescaled from the row's own stored values, so this works for
+// catalog foods, AI entries and recipes alike. returns null if not found.
+export async function updateTrackedFood(
+	userId: string,
+	id: number,
+	meal: number,
+	servingSize: number
+): Promise<FoodTracked | null> {
+
+	// right-hand side column references use the pre-update values
+	const sql = `
+		UPDATE food_tracker
+		SET
+			meal         = $3,
+			calories     = ROUND(calories * $4::numeric / serving_size, 0),
+			protein      = ROUND(protein  * $4::numeric / serving_size, 1),
+			carbs        = ROUND(carbs    * $4::numeric / serving_size, 1),
+			fat          = ROUND(fat      * $4::numeric / serving_size, 1),
+			serving_size = $4::numeric
+		WHERE
+			user_id = $1
+			AND id = $2
+			AND serving_size > 0
+		RETURNING id;
+	`;
+
+	const { rowCount } = await pool.query(sql, [userId, id, meal, servingSize]);
+
+	if (rowCount !== 1) return null;
+
+	return getTrackedFood(userId, id);
+
+}
+
 // clears a user's entire food tracking history
 export async function clearFoodLog(userId: string) {
 

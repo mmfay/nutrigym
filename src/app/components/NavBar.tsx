@@ -147,7 +147,7 @@ export default function NavBar() {
 					</Link>
 				)}
 
-				<UserSettings onLogout={auth.handleLogout} />
+				<UserSettings onLogout={auth.handleLogout} isSysAdmin={!!auth.user?.is_sys_admin} />
 				</>
 			)}
 			</div>

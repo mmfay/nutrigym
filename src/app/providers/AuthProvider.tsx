@@ -8,6 +8,7 @@ export type AuthUser = {
 	id: string;
 	name: string;
 	email: string;
+	is_sys_admin?: boolean;
 };
 
 export type AuthState = {

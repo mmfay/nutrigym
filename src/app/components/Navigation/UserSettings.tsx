@@ -6,9 +6,10 @@ import { ChevronDown, User } from "lucide-react";
 
 type UserSettingsProps = {
 	onLogout: () => void;
+	isSysAdmin?: boolean;
 };
 
-export default function UserSettings({ onLogout }: UserSettingsProps) {
+export default function UserSettings({ onLogout, isSysAdmin = false }: UserSettingsProps) {
 
 	const [menuOpen, setMenuOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement | null>(null);
@@ -61,6 +62,17 @@ export default function UserSettings({ onLogout }: UserSettingsProps) {
 						>
 							User Settings
 						</Link>
+
+						{isSysAdmin && (
+							<Link
+								href="/admin"
+								className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
+								role="menuitem"
+								onClick={() => setMenuOpen(false)}
+							>
+								Admin Panel
+							</Link>
+						)}
 
 						<button
 							type="button"

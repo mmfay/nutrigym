@@ -33,3 +33,18 @@ export type ApiKeyGenerated = {
 	key_prefix: string;
 	created_at: Date;
 };
+export type AdminUser = {
+	id: string;
+	name: string;
+	email: string;
+	is_enabled: boolean;
+	is_sys_admin: boolean;
+	email_verified: boolean;
+	created_at: Date | null;
+};
+
+export type AdminUserPage = {
+	items: AdminUser[];
+	nextCursor: string | null;
+	hasMore: boolean;
+};

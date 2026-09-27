@@ -90,6 +90,19 @@ export class AuthSessions extends Common {
 
 	}
 
+	static async deleteByUser(userId: string, client: PoolClient | null = null): Promise<void> {
+
+		const temp = new AuthSessions(client);
+
+		const { sql, params } = SQL()
+			.deleteFrom(TABLE)
+			.where("user_id = ?", userId)
+			.build();
+
+		await temp.execute(sql, params);
+
+	}
+
 	static async deleteExpired(client: PoolClient | null = null): Promise<void> {
 
 		const temp = new AuthSessions(client);

@@ -2,10 +2,11 @@ type TagProps = {
 	label: string;
 	sub?: string;
 	onRemove: () => void;
+	onClick?: () => void;
 	colorClasses?: string; // allows meal color tinting
 }
 export default function Tag({
-	label, sub, onRemove, colorClasses
+	label, sub, onRemove, onClick, colorClasses
 }: TagProps) {
 	return (
 		<span
@@ -17,8 +18,22 @@ export default function Tag({
 			].join(" ")}
 			title={sub ? `${label} — ${sub}` : label}
 		>
-			<span className="truncate">{label}</span>
-			{sub && <span className="opacity-70">· {sub}</span>}
+			{onClick ? (
+				<button
+					type="button"
+					onClick={onClick}
+					className="inline-flex min-w-0 items-center gap-2 text-left hover:underline"
+					aria-label={`Edit ${label}`}
+				>
+					<span className="truncate">{label}</span>
+					{sub && <span className="opacity-70">· {sub}</span>}
+				</button>
+			) : (
+				<>
+					<span className="truncate">{label}</span>
+					{sub && <span className="opacity-70">· {sub}</span>}
+				</>
+			)}
 			<button
 				type="button"
 				aria-label={`Remove ${label}`}

@@ -1,6 +1,6 @@
 import { Food, FoodTracked, FoodCreate, FoodMacros} from "@/lib/dataTypes";
 
-import { postJSON, getJSON, deleteJSON, postFormData } from "../submissions";
+import { postJSON, getJSON, deleteJSON, patchJSON, postFormData } from "../submissions";
 import { ApiResult } from "@/lib/dataTypes/results";
 
 // fetches weekly macro trend
@@ -65,6 +65,13 @@ export async function logFood(foodItem: Food, meal: number, loggedDate: String):
  */
 export async function fetchFoodLog(date: String): Promise<ApiResult<FoodTracked[]>> {
 	return getJSON("/api/food/log", { date });
+}
+
+/**
+ * Update the meal and quantity of a users tracked food
+ */
+export async function updateFoodLog(id: number, meal: number, servingSize: number): Promise<ApiResult<FoodTracked>> {
+	return patchJSON("/api/food/log", { id, meal, serving_size: servingSize });
 }
 
 /**

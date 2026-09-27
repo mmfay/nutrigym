@@ -19,7 +19,7 @@ export async function GET() {
 
 	// get user so we can check for permissions on request
 	const { rows } = await pool.query(
-		`select id, name, email from users where id = $1 limit 1`,
+		`select id, name, email, is_sys_admin from users where id = $1 limit 1`,
 		[sess.user_id]
 	);
 
@@ -34,7 +34,7 @@ export async function GET() {
 	}
 
 	const user = {
-		id: u.id, name: u.name, email: u.email
+		id: u.id, name: u.name, email: u.email, is_sys_admin: u.is_sys_admin
 	}
 
 	return R.ok(user, "User is Authenticated");

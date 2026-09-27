@@ -23,6 +23,14 @@ export class ResponseBuilder {
 		return this.json(null, 401, message);
 	}
 
+	static forbidden(message = "You do not have permission to do that.") {
+		return this.json(null, 403, message);
+	}
+
+	static notFound(message = "Not Found") {
+		return this.json(null, 404, message);
+	}
+
 	static ok<T>(data?: T, message = "OK") {
 		return this.json(data ?? null, 200, message);
 	}

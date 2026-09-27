@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { createFood, logFood, fetchFoodLog, deleteFoodLog, clearFoodLog, getRecentFoods, searchFood, getRemainingAIRequests, copyMeal } from "../api/food/food";
+import { createFood, logFood, fetchFoodLog, deleteFoodLog, updateFoodLog, clearFoodLog, getRecentFoods, searchFood, getRemainingAIRequests, copyMeal } from "../api/food/food";
 import { FoodCreate, Food, FoodTracked } from "../dataTypes";
 
 export type FoodsController = {
@@ -25,6 +25,7 @@ export type FoodsController = {
 	getRecents: (meal: number) => Promise<void>;
 	getAIRequests: () => Promise<void>;
 	removeFoodLog: (id: number) => Promise<void>;
+	onUpdateFoodLog: (id: number, meal: number, servingSize: number) => Promise<void>;
 	onClearHistory: () => Promise<void>;
 
 	openFoodModal: () => void;
@@ -35,6 +36,10 @@ export type FoodsController = {
 
 	openMacroAIModal: () => void;
 	closeMacroAIModal: () => void;
+
+	openEditLogModal: (item: FoodTracked) => void;
+	closeEditLogModal: () => void;
+	selectedLogToEdit: FoodTracked | null;
 
 	foodModalOpen: boolean;
 	foodLogModalOpen: boolean;
@@ -51,6 +56,7 @@ export function useFoodController(): FoodsController {
 	const [macroAIModalOpen, setMacroAIModealOpen] = useState(false);
 
 	const [selectedFoodToLog, setSelectedFoodToLog] = useState<Food | null>(null);
+	const [selectedLogToEdit, setSelectedLogToEdit] = useState<FoodTracked | null>(null);
 
 	// tracks how many open AI Requests a user has on the front end, so functions can be disabled.
 	const [remainingAIRequests, setRemainingAIRequests] = useState(0);
@@ -247,6 +253,27 @@ export function useFoodController(): FoodsController {
 		setLoading(false);
 	}, []);
 
+	// updates the meal/quantity of a logged food
+	const onUpdateFoodLog = useCallback(async (id: number, meal: number, servingSize: number): Promise<void> => {
+		setLoading(true);
+		setError(null);
+
+		const res = await updateFoodLog(id, meal, servingSize);
+
+		if (!aliveRef.current) return;
+
+		if (!res.ok || !res.data) {
+			setError(res.message);
+			setLoading(false);
+			throw new Error(res.message);
+		}
+
+		const updated = res.data;
+
+		setTrackedFood((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
+		setLoading(false);
+	}, []);
+
 	// clears all tracking history for the user
 	const onClearHistory = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -302,6 +329,16 @@ export function useFoodController(): FoodsController {
 		setFoodLogModalOpen(false);
 	}
 
+	// opens edit logged food modal
+	function openEditLogModal(item: FoodTracked) {
+		setSelectedLogToEdit(item);
+	}
+
+	// closes edit logged food modal
+	function closeEditLogModal() {
+		setSelectedLogToEdit(null);
+	}
+
 	// opens food modal
 	function openMacroAIModal() {
 		setMacroAIModealOpen(true);
@@ -327,6 +364,7 @@ export function useFoodController(): FoodsController {
 		onCopyMeal,
 		getAIRequests,
 		removeFoodLog,
+		onUpdateFoodLog,
 		onClearHistory,
 		getFoodLog,
 		getRecents,
@@ -336,6 +374,9 @@ export function useFoodController(): FoodsController {
 		closeFoodLogModal,
 		openMacroAIModal,
 		closeMacroAIModal,
+		openEditLogModal,
+		closeEditLogModal,
+		selectedLogToEdit,
 		foodModalOpen,
 		foodLogModalOpen,
 		macroAIModalOpen

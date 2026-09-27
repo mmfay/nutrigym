@@ -11,6 +11,7 @@ import { useFoodController, useRecipeController } from "@/lib/hooks";
 import Tag from "@/app/components/Tag";
 import RecipeCard from "@/app/components/RecipeCard";
 import MacroAI from "@/app/components/Modals/MacroAI";
+import EditLoggedFood from "@/app/components/Modals/EditLoggedFood";
 import FoodCard from "@/app/components/FoodCard";
 
 // ---------- Types ----------
@@ -440,6 +441,7 @@ export default function FoodTracker() {
 								sub={`${Number(x.food.calories) * x.servings} kcal`}
 								colorClasses={`${c.border} ${c.text}`}
 								onRemove={() => fc.removeFoodLog(x.food.id)}
+								onClick={() => fc.openEditLogModal(x.food)}
 								/>
 							))}
 							</div>
@@ -470,6 +472,11 @@ export default function FoodTracker() {
 				slot={rc.recipeLogSlot}
 				logDate={date}
 				onLog={fc.onLogFood}
+			/>
+			<EditLoggedFood
+				item={fc.selectedLogToEdit}
+				onClose={fc.closeEditLogModal}
+				onSave={fc.onUpdateFoodLog}
 			/>
 			<MacroAI
 				isOpen={fc.macroAIModalOpen}
