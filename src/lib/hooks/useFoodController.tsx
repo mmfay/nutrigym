@@ -159,6 +159,8 @@ export function useFoodController(): FoodsController {
 			}
 
 			setTrackedFood((prev) => [...prev, data]);
+			// recents for this meal are now stale
+			setRecentsByMeal(({ [meal]: _stale, ...rest }) => rest);
 			setLoading(false);
 			getAIRequests();
 		},

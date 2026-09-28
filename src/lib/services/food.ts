@@ -5,27 +5,34 @@ import { FoodCreate, Food } from "../dataTypes";
 // get recent foods for selection
 export async function getRecentFood(userId: string, meal: number | null, limit = 10) {
 	
+	// DISTINCT ON keeps each food's latest log; outer query orders those by recency
 	const sql = `
-		SELECT DISTINCT ON (v.food_id)
-			v.food_id     AS id,
-			v.food_name   AS name,
-			v.food_serving_size  AS serving_size,
-			v.food_serving_unit  AS serving_unit,
-			v.food_protein_per_serving  AS protein,
-			v.food_carbs_per_serving    AS carbs,
-			v.food_fat_per_serving      AS fat,
-			v.food_calories_per_serving AS calories,
-			v.brand,
-			v.serving_metric_size,
-			v.serving_metric_unit,
-			v.is_verified
-		FROM food_log_v v
-		WHERE 
-			v.user_id = $1
-			AND v.meal = $2
-		ORDER BY 
-			v.food_id, 
-			v.recorded_at DESC
+		SELECT r.*
+		FROM (
+			SELECT DISTINCT ON (v.food_id)
+				v.food_id     AS id,
+				v.food_name   AS name,
+				v.food_serving_size  AS serving_size,
+				v.food_serving_unit  AS serving_unit,
+				v.food_protein_per_serving  AS protein,
+				v.food_carbs_per_serving    AS carbs,
+				v.food_fat_per_serving      AS fat,
+				v.food_calories_per_serving AS calories,
+				v.brand,
+				v.serving_metric_size,
+				v.serving_metric_unit,
+				v.is_verified,
+				v.recorded_at
+			FROM food_log_v v
+			WHERE 
+				v.user_id = $1
+				AND v.meal = $2
+				AND v.food_id IS NOT NULL
+			ORDER BY 
+				v.food_id, 
+				v.recorded_at DESC
+		) r
+		ORDER BY r.recorded_at DESC
 		LIMIT $3;
 	`;
 
