@@ -48,7 +48,7 @@ export default function NavBar() {
 			: "/home";
 
 	return (
-		<header className="sticky top-0 z-30 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur bg-white/60 dark:bg-slate-900/60">
+		<header className="sticky top-0 z-30 pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur bg-white/60 dark:bg-slate-900/60">
 		<div className="mx-auto max-w-7xl px-6 py-4 flex items-center gap-4">
 			{/* Left: brand */}
 			<Link

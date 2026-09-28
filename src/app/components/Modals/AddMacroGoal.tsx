@@ -101,7 +101,7 @@ export default function AddMacroGoal({ isOpen, onClose, onCreate, initialGoal = 
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-4">
+		<div className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-safe-4">
 		<div className="w-full max-w-lg rounded-3xl border border-slate-200/60 dark:border-slate-700/60 bg-white/90 dark:bg-slate-900/90 shadow-xl overflow-hidden">
 			{/* Header */}
 			<div className="px-6 pt-5 pb-4 border-b border-slate-200/60 dark:border-slate-700/60">

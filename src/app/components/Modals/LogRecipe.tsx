@@ -89,7 +89,7 @@ export default function AddRecipeToLog({ isOpen, onClose, recipe, slot, logDate,
 
 	return (
 		<div
-			className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-4"
+			className="fixed inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm p-safe-4"
 			role="dialog"
 			aria-modal="true"
 			onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}

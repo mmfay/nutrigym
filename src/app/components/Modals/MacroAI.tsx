@@ -287,7 +287,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 	const hasCaptured = !!photoUrl;
 
 	return (
-		<div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
+		<div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50 p-safe-4">
 			<div className="flex min-h-full items-center justify-center">
 				<div className="w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
 					

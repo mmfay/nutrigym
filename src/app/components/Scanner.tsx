@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import type React from "react";
 import { BrowserMultiFormatReader, IScannerControls } from "@zxing/browser";
 import { DecodeHintType, BarcodeFormat } from "@zxing/library";
 
@@ -256,7 +255,7 @@ export function Scanner({
 			role="dialog"
 			aria-modal="true"
 		>
-		<div className="w-full md:max-w-md p-4">
+		<div className="w-full md:max-w-md p-safe-4">
 			<div
 			className="
 				w-full bg-white dark:bg-gray-800 

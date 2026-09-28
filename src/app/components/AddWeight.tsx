@@ -82,7 +82,7 @@ export default function AddWeightModal({
 		<div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
 		{/* Centered dialog on all screens */}
-		<div className="absolute inset-0 grid place-items-center p-4">
+		<div className="absolute inset-0 grid place-items-center p-safe-4">
 			<div className="w-full max-w-md rounded-2xl border border-slate-700/60 bg-slate-900/95 text-slate-100 shadow-2xl ring-1 ring-white/10">
 			{/* Header */}
 			<div className="px-6 pt-6 text-center">

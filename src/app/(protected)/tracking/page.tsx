@@ -85,14 +85,14 @@ export default function FoodTracker() {
 
 	}, [fc.trackedFood]);
 
-	// fetch recents when the meal filter changes
+	// fetch recents when the tab opens, the meal filter changes, or the cache is invalidated
 	useEffect(() => {
 
 		if (mode !== "recent") return;
 		if (mealId < 0) return;
 		fc.getRecents(mealId);
 
-	}, [mealId]);
+	}, [mode, mealId, fc.recentsByMeal]);
 
 	// fetch tracked foods for date
 	useEffect(() => {
@@ -203,14 +203,10 @@ export default function FoodTracker() {
 
 	}
 
-	// Layout chrome adjustment if you have a fixed top bar
-	const CHROME = 0;
-
 	return (
-		<div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+		<div className="min-h-dvh bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 		<div
-			className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:overflow-hidden"
-			style={{ height: `calc(100vh - ${CHROME}px)` }}
+			className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-4 md:h-screen md:overflow-hidden"
 		>
 			{/* LEFT: tabbed source list (independent scroll) */}
 			<div className="md:h-full md:overflow-y-auto md:pr-1">
@@ -303,8 +299,8 @@ export default function FoodTracker() {
 
 			</div>
 
-			{/* LISTS */}
-			<div className="mt-2 space-y-2">
+			{/* LISTS — own scroll box on mobile so results don't push the meal log down */}
+			<div className="mt-2 space-y-2 max-h-[45dvh] overflow-y-auto overscroll-contain rounded-lg md:max-h-none md:overflow-visible">
 				{mode === "recent" && (
 				<>
 				
@@ -375,7 +371,7 @@ export default function FoodTracker() {
 					)
 				)}
 
-				<div className="h-8" />
+				<div className="hidden md:block h-8" />
 			</div>
 			</div>
 
