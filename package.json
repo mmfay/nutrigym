@@ -15,7 +15,7 @@
     "disposable-email-domains-js": "^1.25.0",
     "lucide-react": "^0.577.0",
     "next": "^16.3.2",
-    "nodemailer": "^9.0.1",
+    "nodemailer": "^10.0.12",
     "openai": "^6.25.0",
     "pg": "^8.16.3",
     "react": "^19.2.8",
