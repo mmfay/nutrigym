@@ -50,4 +50,12 @@ export class ResponseBuilder {
 	static badRequest(message = "Bad Request") {
 		return this.json(null, 400, message);
 	}
+
+	// services throw ResponseBuilder responses for expected failures (404, 400); anything else is a 500
+	static fromError(err: unknown) {
+		if (err instanceof Response) return err;
+		console.error(err);
+		return this.serverError();
+	}
+	
 }

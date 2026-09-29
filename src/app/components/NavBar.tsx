@@ -43,7 +43,7 @@ export default function NavBar() {
 	const isMarketing = pathname === "/";
 
 	const mobileValue =
-		pathname === "/tracking" || pathname === "/home" || pathname === "/kitchen" || pathname === "/measurements"
+		pathname === "/tracking" || pathname === "/home" || pathname === "/kitchen" || pathname === "/training" || pathname === "/measurements"
 			? pathname
 			: "/home";
 
@@ -74,6 +74,9 @@ export default function NavBar() {
 					<Link href="/kitchen" className="hover:text-slate-900 dark:hover:text-white">
 					Kitchen
 					</Link>
+					<Link href="/training" className="hover:text-slate-900 dark:hover:text-white">
+					Training
+					</Link>
 					<Link href="/measurements" className="hover:text-slate-900 dark:hover:text-white">
 					Measurements
 					</Link>
@@ -94,6 +97,7 @@ export default function NavBar() {
 					<option value="/home">Home</option>
 					<option value="/tracking">Tracking</option>
 					<option value="/kitchen">Kitchen</option>
+					<option value="/training">Training</option>
 					<option value="/measurements">Measurements</option>
 					</select>
 				</div>
