@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",
-    "@zxing/library": "^0.21.3",
+    "@zxing/library": "^0.23.0",
     "bcryptjs": "^3.0.2",
     "disposable-email-domains-js": "^1.25.0",
     "lucide-react": "^0.577.0",
