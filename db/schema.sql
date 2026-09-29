@@ -8,6 +8,13 @@ drop table if exists ai_daily_usage cascade;
 drop table if exists recipe_items cascade;
 drop table if exists recipes cascade;
 drop table if exists api_keys cascade;
+drop table if exists workout_schedule cascade;
+drop table if exists workout_sets cascade;
+drop table if exists workout_session_exercises cascade;
+drop table if exists workout_sessions cascade;
+drop table if exists workout_template_exercises cascade;
+drop table if exists workout_templates cascade;
+drop table if exists exercises cascade;
 
 -- Users table
 create table if not exists users (
@@ -220,4 +227,152 @@ CREATE TABLE api_keys (
     key_hash text NOT NULL UNIQUE,
     key_prefix text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Exercises (global catalog + user custom)
+create table if not exists exercises (
+	id					bigserial primary key,
+	user_id				uuid references users(id) on delete cascade,	-- null = global catalog entry
+	name				text not null,
+	muscle_group		text not null,
+	equipment			text not null,
+	tracking_type		text not null,
+	is_verified			boolean not null default false,
+	created_at			timestamptz not null default now(),
+	updated_at			timestamptz not null default now(),
+	constraint chk_exercises_muscle_group
+		check (muscle_group in ('chest','back','shoulders','biceps','triceps','forearms','quads','hamstrings','glutes','calves','core','full_body','cardio')),
+	constraint chk_exercises_equipment
+		check (equipment in ('barbell','dumbbell','machine','cable','bodyweight','kettlebell','band','other')),
+	constraint chk_exercises_tracking_type
+		check (tracking_type in ('WEIGHT_REPS','REPS','TIME','DISTANCE_TIME'))
+);
+
+create unique index if not exists uq_exercises_global_name on exercises (lower(name)) where user_id is null;
+create unique index if not exists uq_exercises_user_name on exercises (user_id, lower(name)) where user_id is not null;
+
+insert into exercises (name, muscle_group, equipment, tracking_type, is_verified) values
+	('Barbell Bench Press',			'chest',		'barbell',		'WEIGHT_REPS',		true),
+	('Incline Barbell Bench Press',	'chest',		'barbell',		'WEIGHT_REPS',		true),
+	('Dumbbell Bench Press',		'chest',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Incline Dumbbell Press',		'chest',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Cable Fly',					'chest',		'cable',		'WEIGHT_REPS',		true),
+	('Push-Up',						'chest',		'bodyweight',	'REPS',				true),
+	('Dip',							'triceps',		'bodyweight',	'REPS',				true),
+	('Deadlift',					'back',			'barbell',		'WEIGHT_REPS',		true),
+	('Barbell Row',					'back',			'barbell',		'WEIGHT_REPS',		true),
+	('Dumbbell Row',				'back',			'dumbbell',		'WEIGHT_REPS',		true),
+	('Pull-Up',						'back',			'bodyweight',	'REPS',				true),
+	('Chin-Up',						'back',			'bodyweight',	'REPS',				true),
+	('Lat Pulldown',				'back',			'cable',		'WEIGHT_REPS',		true),
+	('Seated Cable Row',			'back',			'cable',		'WEIGHT_REPS',		true),
+	('Overhead Press',				'shoulders',	'barbell',		'WEIGHT_REPS',		true),
+	('Dumbbell Shoulder Press',		'shoulders',	'dumbbell',		'WEIGHT_REPS',		true),
+	('Lateral Raise',				'shoulders',	'dumbbell',		'WEIGHT_REPS',		true),
+	('Face Pull',					'shoulders',	'cable',		'WEIGHT_REPS',		true),
+	('Rear Delt Fly',				'shoulders',	'dumbbell',		'WEIGHT_REPS',		true),
+	('Barbell Curl',				'biceps',		'barbell',		'WEIGHT_REPS',		true),
+	('Dumbbell Curl',				'biceps',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Hammer Curl',					'biceps',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Cable Curl',					'biceps',		'cable',		'WEIGHT_REPS',		true),
+	('Triceps Pushdown',			'triceps',		'cable',		'WEIGHT_REPS',		true),
+	('Overhead Triceps Extension',	'triceps',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Skull Crusher',				'triceps',		'barbell',		'WEIGHT_REPS',		true),
+	('Close-Grip Bench Press',		'triceps',		'barbell',		'WEIGHT_REPS',		true),
+	('Back Squat',					'quads',		'barbell',		'WEIGHT_REPS',		true),
+	('Front Squat',					'quads',		'barbell',		'WEIGHT_REPS',		true),
+	('Leg Press',					'quads',		'machine',		'WEIGHT_REPS',		true),
+	('Leg Extension',				'quads',		'machine',		'WEIGHT_REPS',		true),
+	('Bulgarian Split Squat',		'quads',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Walking Lunge',				'quads',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Goblet Squat',				'quads',		'dumbbell',		'WEIGHT_REPS',		true),
+	('Romanian Deadlift',			'hamstrings',	'barbell',		'WEIGHT_REPS',		true),
+	('Lying Leg Curl',				'hamstrings',	'machine',		'WEIGHT_REPS',		true),
+	('Hip Thrust',					'glutes',		'barbell',		'WEIGHT_REPS',		true),
+	('Standing Calf Raise',			'calves',		'machine',		'WEIGHT_REPS',		true),
+	('Seated Calf Raise',			'calves',		'machine',		'WEIGHT_REPS',		true),
+	('Plank',						'core',			'bodyweight',	'TIME',				true),
+	('Hanging Leg Raise',			'core',			'bodyweight',	'REPS',				true),
+	('Cable Crunch',				'core',			'cable',		'WEIGHT_REPS',		true),
+	('Ab Wheel Rollout',			'core',			'other',		'REPS',				true),
+	('Kettlebell Swing',			'full_body',	'kettlebell',	'WEIGHT_REPS',		true),
+	('Farmer''s Carry',				'forearms',		'dumbbell',		'TIME',				true),
+	('Running',						'cardio',		'other',		'DISTANCE_TIME',	true),
+	('Cycling',						'cardio',		'machine',		'DISTANCE_TIME',	true),
+	('Rowing Machine',				'cardio',		'machine',		'DISTANCE_TIME',	true),
+	('Walking',						'cardio',		'other',		'DISTANCE_TIME',	true),
+	('Jump Rope',					'cardio',		'other',		'TIME',				true)
+on conflict (lower(name)) where user_id is null do nothing;
+
+
+-- Workouts: templates (plans) and sessions (what was actually lifted)
+create table if not exists workout_templates (
+	id					bigserial primary key,
+	user_id				uuid not null references users(id) on delete cascade,
+	name				text not null,
+	notes				text,
+	created_at			timestamptz not null default now(),
+	updated_at			timestamptz not null default now()
+);
+
+create table if not exists workout_template_exercises (
+	id						bigserial primary key,
+	template_id				bigint not null references workout_templates(id) on delete cascade,
+	exercise_id				bigint not null references exercises(id) on delete cascade,
+	position				int not null,
+	target_sets				int not null default 3,
+	target_reps				int,
+	target_weight			numeric(7,2),			-- lb
+	target_duration_seconds	int,
+	constraint chk_wte_targets_nonneg
+		check (target_sets > 0 and coalesce(target_reps, 0) >= 0 and coalesce(target_weight, 0) >= 0 and coalesce(target_duration_seconds, 0) >= 0)
+);
+
+create table if not exists workout_sessions (
+	id					bigserial primary key,
+	user_id				uuid not null references users(id) on delete cascade,
+	template_id			bigint references workout_templates(id) on delete set null,
+	name				text not null,
+	notes				text,
+	started_at			timestamptz not null default now(),
+	ended_at			timestamptz				-- null = in progress
+);
+
+-- a user can only have one workout in progress at a time
+create unique index if not exists uq_workout_sessions_active on workout_sessions (user_id) where ended_at is null;
+
+create table if not exists workout_session_exercises (
+	id						bigserial primary key,
+	session_id				bigint not null references workout_sessions(id) on delete cascade,
+	exercise_id				bigint not null references exercises(id),	-- restrict: logged history keeps its exercise
+	position				int not null,
+	target_sets				int,
+	target_reps				int,
+	target_weight			numeric(7,2),
+	target_duration_seconds	int
+);
+
+create table if not exists workout_sets (
+	id						bigserial primary key,
+	session_exercise_id		bigint not null references workout_session_exercises(id) on delete cascade,
+	set_number				int not null,
+	weight					numeric(7,2),			-- lb
+	reps					int,
+	duration_seconds		int,
+	distance				numeric(8,2),			-- mi
+	is_warmup				boolean not null default false,
+	created_at				timestamptz not null default now(),
+	constraint chk_workout_sets_nonneg
+		check (coalesce(weight, 0) >= 0 and coalesce(reps, 0) >= 0 and coalesce(duration_seconds, 0) >= 0 and coalesce(distance, 0) >= 0)
+);
+
+
+-- Planned workouts on the calendar
+create table if not exists workout_schedule (
+	id					bigserial primary key,
+	user_id				uuid not null references users(id) on delete cascade,
+	template_id			bigint not null references workout_templates(id) on delete cascade,
+	scheduled_date		date not null,
+	session_id			bigint references workout_sessions(id) on delete set null,	-- set once the planned workout is started
+	created_at			timestamptz not null default now()
 );
