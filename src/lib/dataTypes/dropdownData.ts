@@ -12,3 +12,36 @@ export const TIMEZONES = [
 	"Asia/Tokyo",
 	"Australia/Sydney",
 ];
+export const MUSCLE_GROUPS = [
+	"chest",
+	"back",
+	"shoulders",
+	"biceps",
+	"triceps",
+	"forearms",
+	"quads",
+	"hamstrings",
+	"glutes",
+	"calves",
+	"core",
+	"full_body",
+	"cardio",
+] as const;
+
+export const EQUIPMENT = [
+	"barbell",
+	"dumbbell",
+	"machine",
+	"cable",
+	"bodyweight",
+	"kettlebell",
+	"band",
+	"other",
+] as const;
+
+export const TRACKING_TYPES = [
+	"WEIGHT_REPS",
+	"REPS",
+	"TIME",
+	"DISTANCE_TIME",
+] as const;

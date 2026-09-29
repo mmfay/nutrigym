@@ -215,6 +215,65 @@ export default function ApiDocsPage() {
 					]
 				}`}
 				/>
+
+				<Endpoint
+				method="GET"
+				path="/api/v1/workouts"
+				description="Returns your finished workouts started within a trailing window of days, newest first, with every exercise and set. Weights are in lb, distances in miles, durations in seconds. Warm-up sets are flagged with is_warmup. Exercises that track time or distance leave weight and reps null."
+				params={[
+					{
+					name: "days",
+					type: "integer",
+					required: false,
+					description:
+						"Number of trailing days to include. 1–365, defaults to 28.",
+					},
+				]}
+				exampleRequest={`curl "https://nutrigym.softwarerror.com/api/v1/workouts?days=7" \\
+					-H "Authorization: Bearer <your_api_key>"`}
+				exampleResponse={`{
+					"ok": true,
+					"message": "Successfully retrieved workouts.",
+					"data": [
+						{
+							"id": 42,
+							"template_id": 3,
+							"name": "Push Day A",
+							"notes": null,
+							"started_at": "2026-07-11T17:02:11.000Z",
+							"ended_at": "2026-07-11T18:04:40.000Z",
+							"exercises": [
+								{
+									"id": 118,
+									"exercise_id": 1,
+									"exercise_name": "Barbell Bench Press",
+									"muscle_group": "chest",
+									"equipment": "barbell",
+									"tracking_type": "WEIGHT_REPS",
+									"position": 0,
+									"target_sets": 3,
+									"target_reps": 8,
+									"target_weight": 185,
+									"target_duration_seconds": null,
+									"sets": [
+										{
+											"id": 901,
+											"session_exercise_id": 118,
+											"set_number": 1,
+											"weight": 185,
+											"reps": 8,
+											"duration_seconds": null,
+											"distance": null,
+											"is_warmup": false,
+											"created_at": "2026-07-11T17:08:52.000Z"
+										}
+									]
+								}
+							]
+						}
+					]
+				}`}
+				/>
 			</section>
 
 			<section className="space-y-3">
