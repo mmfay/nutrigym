@@ -38,6 +38,7 @@ function sessionDetailSQL(where: string, suffix = "") {
 						'target_reps',              se.target_reps,
 						'target_weight',            se.target_weight,
 						'target_duration_seconds',  se.target_duration_seconds,
+						'superset_with_next',       se.superset_with_next,
 						'sets', COALESCE((
 							SELECT json_agg(
 								json_build_object(
@@ -213,8 +214,8 @@ export async function startWorkoutSession(
 		if (data.template_id) {
 			await client.query(
 				`INSERT INTO workout_session_exercises
-					(session_id, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds)
-				 SELECT $1, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds
+					(session_id, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds, superset_with_next)
+				 SELECT $1, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds, superset_with_next
 				 FROM workout_template_exercises
 				 WHERE template_id = $2`,
 				[session_id, data.template_id]
@@ -295,21 +296,78 @@ export async function addWorkoutSessionExercise(user_id: string, session_id: num
 }
 
 /**
- * Removes an exercise (and its sets) from a workout.
+ * Removes an exercise (and its sets) from a workout. If it ended a superset,
+ * the exercise before it now ends that superset instead.
  */
 export async function removeWorkoutSessionExercise(user_id: string, session_exercise_id: number) {
 
-	const { rows } = await pool.query<{ session_id: number }>(
-		`DELETE FROM workout_session_exercises se
-		 USING workout_sessions s
-		 WHERE se.id = $1 AND s.id = se.session_id AND s.user_id = $2
-		 RETURNING se.session_id::int`,
-		[session_exercise_id, user_id]
+	const client = await pool.connect();
+
+	try {
+
+		await client.query("BEGIN");
+
+		const { rows } = await client.query<{ session_id: number; position: number; superset_with_next: boolean }>(
+			`DELETE FROM workout_session_exercises se
+			 USING workout_sessions s
+			 WHERE se.id = $1 AND s.id = se.session_id AND s.user_id = $2
+			 RETURNING se.session_id::int, se.position, se.superset_with_next`,
+			[session_exercise_id, user_id]
+		);
+
+		if (!rows[0]) throw R.notFound("Exercise not found in workout");
+
+		const { session_id, position, superset_with_next } = rows[0];
+
+		if (!superset_with_next) {
+			await client.query(
+				`UPDATE workout_session_exercises SET superset_with_next = false
+				 WHERE id = (
+					SELECT id FROM workout_session_exercises
+					WHERE session_id = $1 AND position < $2
+					ORDER BY position DESC
+					LIMIT 1
+				 )`,
+				[session_id, position]
+			);
+		}
+
+		const session = await getSessionById(client, user_id, session_id);
+
+		await client.query("COMMIT");
+
+		return session!;
+
+	} catch (err) {
+		await client.query("ROLLBACK");
+		throw err;
+	} finally {
+		client.release();
+	}
+
+}
+
+/**
+ * Links an exercise into a superset with the one after it, or breaks that link.
+ */
+export async function setWorkoutSessionSuperset(user_id: string, session_exercise_id: number, superset_with_next: boolean) {
+
+	const session_id = await sessionIdForSessionExercise(user_id, session_exercise_id);
+
+	const { rowCount } = await pool.query(
+		`UPDATE workout_session_exercises se
+		 SET superset_with_next = $2
+		 WHERE se.id = $1
+			AND (
+				NOT $2::boolean
+				OR EXISTS (SELECT 1 FROM workout_session_exercises nx WHERE nx.session_id = se.session_id AND nx.position > se.position)
+			)`,
+		[session_exercise_id, superset_with_next]
 	);
 
-	if (!rows[0]) throw R.notFound("Exercise not found in workout");
+	if (!rowCount) throw R.badRequest("Add another exercise after this one to make a superset");
 
-	return getWorkoutSession(user_id, rows[0].session_id);
+	return getWorkoutSession(user_id, session_id);
 
 }
 

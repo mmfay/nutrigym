@@ -34,6 +34,10 @@ export async function removeWorkoutExercise(session_id: number, session_exercise
 	return deleteJSON(`/api/workouts/sessions/${session_id}/exercises`, { session_exercise_id });
 }
 
+export async function setWorkoutSuperset(session_id: number, session_exercise_id: number, superset_with_next: boolean): Promise<ApiResult<WorkoutSession>> {
+	return patchJSON(`/api/workouts/sessions/${session_id}/exercises`, { session_exercise_id, superset_with_next });
+}
+
 export async function addWorkoutSet(session_exercise_id: number, set: WorkoutSetInput): Promise<ApiResult<WorkoutSession>> {
 	return postJSON("/api/workouts/sets", { session_exercise_id, ...set });
 }

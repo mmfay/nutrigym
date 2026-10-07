@@ -2,6 +2,7 @@ export * from "./useAdminController";
 export * from "./useExerciseController";
 export * from "./useFoodController";
 export * from "./useMacroController";
+export * from "./usePushController";
 export * from "./useRecipeController";
 export * from "./useUserSettingsController";
 export * from "./useWeightController";

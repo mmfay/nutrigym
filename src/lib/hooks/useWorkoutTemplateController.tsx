@@ -30,6 +30,7 @@ export type WorkoutTemplateController = {
 	updatePending: (tempId: string, patch: Partial<Omit<PendingTemplateExercise, "tempId" | "exercise">>) => void;
 	removePending: (tempId: string) => void;
 	movePending: (tempId: string, dir: -1 | 1) => void;
+	toggleSuperset: (tempId: string) => void;
 	editTemplate: (template: WorkoutTemplate) => void;
 	resetBuilder: () => void;
 	saveTemplate: () => Promise<boolean>;
@@ -119,6 +120,7 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 				target_reps: timed ? "" : "10",
 				target_weight: "",
 				target_duration_seconds: "",
+				superset_with_next: false,
 			},
 		]);
 
@@ -128,10 +130,23 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 		setPending((prev) => prev.map((p) => (p.tempId === tempId ? { ...p, ...patch } : p)));
 	}, []);
 
+	// removing the last exercise of a superset makes the one before it the new end
 	const removePending = useCallback((tempId: string) => {
-		setPending((prev) => prev.filter((p) => p.tempId !== tempId));
+
+		setPending((prev) => {
+
+			const i = prev.findIndex((p) => p.tempId === tempId);
+			if (i < 0) return prev;
+
+			const next = prev.filter((_, k) => k !== i);
+			if (i > 0 && !prev[i].superset_with_next) next[i - 1] = { ...next[i - 1], superset_with_next: false };
+			return next;
+
+		});
+
 	}, []);
 
+	// links stay with their position, so a moved exercise swaps into its neighbour's superset slot
 	const movePending = useCallback((tempId: string, dir: -1 | 1) => {
 
 		setPending((prev) => {
@@ -142,11 +157,16 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 			if (i < 0 || j < 0 || j >= prev.length) return prev;
 
 			const next = [...prev];
-			[next[i], next[j]] = [next[j], next[i]];
+			next[i] = { ...prev[j], superset_with_next: prev[i].superset_with_next };
+			next[j] = { ...prev[i], superset_with_next: prev[j].superset_with_next };
 			return next;
 
 		});
 
+	}, []);
+
+	const toggleSuperset = useCallback((tempId: string) => {
+		setPending((prev) => prev.map((p) => (p.tempId === tempId ? { ...p, superset_with_next: !p.superset_with_next } : p)));
 	}, []);
 
 	const resetBuilder = useCallback(() => {
@@ -183,6 +203,7 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 				target_reps: e.target_reps !== null ? String(e.target_reps) : "",
 				target_weight: e.target_weight !== null ? String(Number(e.target_weight)) : "",
 				target_duration_seconds: e.target_duration_seconds !== null ? formatDuration(e.target_duration_seconds) : "",
+				superset_with_next: e.superset_with_next,
 			}))
 		);
 
@@ -208,7 +229,7 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 			exercises: [],
 		};
 
-		for (const p of pending) {
+		for (const [i, p] of pending.entries()) {
 
 			const sets = Number(p.target_sets);
 			if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
@@ -228,6 +249,7 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 				target_reps: p.target_reps.trim() ? Number(p.target_reps) : null,
 				target_weight: p.target_weight.trim() ? Number(p.target_weight) : null,
 				target_duration_seconds: duration,
+				superset_with_next: p.superset_with_next && i < pending.length - 1,
 			});
 
 		}
@@ -277,6 +299,7 @@ export function useWorkoutTemplateController(): WorkoutTemplateController {
 		updatePending,
 		removePending,
 		movePending,
+		toggleSuperset,
 		editTemplate,
 		resetBuilder,
 		saveTemplate,

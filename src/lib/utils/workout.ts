@@ -164,3 +164,25 @@ export function setInputFromDraft(draft: SetDraft, tracking: TrackingType, is_wa
 	}
 
 }
+/**
+ * Splits an ordered exercise list into blocks: a superset (2+ exercises linked
+ * with superset_with_next) or a single standalone exercise.
+ */
+export function groupSupersets<T extends { superset_with_next: boolean }>(items: T[]): T[][] {
+
+	const groups: T[][] = [];
+	let current: T[] = [];
+
+	for (const item of items) {
+		current.push(item);
+		if (!item.superset_with_next) {
+			groups.push(current);
+			current = [];
+		}
+	}
+
+	if (current.length) groups.push(current);
+
+	return groups;
+
+}

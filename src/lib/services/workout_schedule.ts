@@ -65,6 +65,34 @@ export async function getWorkoutCalendar(user_id: string, from: string, to: stri
 }
 
 /**
+ * Workouts planned for today (user's timezone) that haven't been finished yet.
+ */
+export async function getTodaysOpenScheduledWorkouts(user_id: string) {
+
+	const { rows } = await pool.query<ScheduledWorkout>(
+		`SELECT
+			ws.id::int,
+			to_char(ws.scheduled_date, 'YYYY-MM-DD') AS date,
+			ws.template_id::int,
+			t.name AS template_name,
+			ws.session_id::int,
+			CASE WHEN s.id IS NOT NULL THEN 'in_progress' ELSE 'planned' END AS status
+		 FROM workout_schedule ws
+		 JOIN users u ON u.id = ws.user_id
+		 JOIN workout_templates t ON t.id = ws.template_id
+		 LEFT JOIN workout_sessions s ON s.id = ws.session_id
+		 WHERE ws.user_id = $1
+			AND ws.scheduled_date = (now() AT TIME ZONE u.timezone)::date
+			AND s.ended_at IS NULL
+		 ORDER BY ws.id`,
+		[user_id]
+	);
+
+	return rows;
+
+}
+
+/**
  * Plans a template on a date.
  */
 export async function scheduleWorkout(user_id: string, template_id: number, date: string) {

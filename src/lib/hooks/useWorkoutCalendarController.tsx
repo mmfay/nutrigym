@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WorkoutCalendar } from "../dataTypes";
 import { getWorkoutCalendar, scheduleWorkout, unscheduleWorkout } from "../api/workouts/schedule";
 import { todayLocalISO } from "../utils/date";
+import { notifyWorkoutsChanged } from "../utils/push";
 
 // local-date helpers; the calendar works in plain YYYY-MM-DD strings so there's no timezone drift
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -121,6 +122,8 @@ export function useWorkoutCalendarController(): WorkoutCalendarController {
 
 			const res = await scheduleWorkout(template_id, date);
 
+			if (res.ok) notifyWorkoutsChanged();
+
 			if (!aliveRef.current) return false;
 
 			if (!res.ok) {
@@ -142,6 +145,8 @@ export function useWorkoutCalendarController(): WorkoutCalendarController {
 		setError(null);
 
 		const res = await unscheduleWorkout(id);
+
+		if (res.ok) notifyWorkoutsChanged();
 
 		if (!aliveRef.current) return;
 

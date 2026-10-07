@@ -25,7 +25,8 @@ export async function getUserWorkoutTemplates(user_id: string) {
 						'target_sets',              te.target_sets,
 						'target_reps',              te.target_reps,
 						'target_weight',            te.target_weight,
-						'target_duration_seconds',  te.target_duration_seconds
+						'target_duration_seconds',  te.target_duration_seconds,
+						'superset_with_next',       te.superset_with_next
 					) ORDER BY te.position
 				) FILTER (WHERE te.id IS NOT NULL),
 				'[]'
@@ -84,9 +85,13 @@ export function parseTemplateInput(body: any): WorkoutTemplateCreate {
 			target_reps: optionalInt(ex?.target_reps, "Target reps"),
 			target_weight,
 			target_duration_seconds: optionalInt(ex?.target_duration_seconds, "Target duration"),
+			superset_with_next: ex?.superset_with_next === true,
 		};
 
 	});
+
+	// the last exercise has nothing to superset with
+	exercises[exercises.length - 1].superset_with_next = false;
 
 	const notes = typeof body?.notes === "string" && body.notes.trim() ? body.notes.trim() : null;
 
@@ -99,9 +104,9 @@ async function insertTemplateExercises(client: PoolClient, template_id: number, 
 	for (const [position, ex] of exercises.entries()) {
 		await client.query(
 			`INSERT INTO workout_template_exercises
-				(template_id, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds)
-			 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-			[template_id, ex.exercise_id, position, ex.target_sets, ex.target_reps ?? null, ex.target_weight ?? null, ex.target_duration_seconds ?? null]
+				(template_id, exercise_id, position, target_sets, target_reps, target_weight, target_duration_seconds, superset_with_next)
+			 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+			[template_id, ex.exercise_id, position, ex.target_sets, ex.target_reps ?? null, ex.target_weight ?? null, ex.target_duration_seconds ?? null, !!ex.superset_with_next]
 		);
 	}
 

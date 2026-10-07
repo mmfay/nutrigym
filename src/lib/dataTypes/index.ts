@@ -231,6 +231,7 @@ export type WorkoutTemplateExercise = ExerciseTargets & {
 	muscle_group: MuscleGroup;
 	tracking_type: TrackingType;
 	position: number;
+	superset_with_next: boolean;
 };
 
 export type WorkoutTemplate = {
@@ -247,6 +248,7 @@ export type WorkoutTemplateExerciseCreate = {
 	target_reps?: number | null;
 	target_weight?: number | null;
 	target_duration_seconds?: number | null;
+	superset_with_next?: boolean;
 };
 
 export type WorkoutTemplateCreate = {
@@ -263,6 +265,7 @@ export type PendingTemplateExercise = {
 	target_reps: string;
 	target_weight: string;
 	target_duration_seconds: string;
+	superset_with_next: boolean;
 };
 
 export type WorkoutSet = {
@@ -293,6 +296,7 @@ export type WorkoutSessionExercise = ExerciseTargets & {
 	equipment: Equipment;
 	tracking_type: TrackingType;
 	position: number;
+	superset_with_next: boolean;
 	sets: WorkoutSet[];
 };
 
@@ -368,3 +372,25 @@ export type WorkoutCalendar = {
 	scheduled: ScheduledWorkout[];
 	sessions: CalendarWorkout[];
 };
+
+// ---------- Push notifications ----------
+
+// what the browser's PushSubscription.toJSON() sends us
+export type PushSubscriptionInput = {
+	endpoint: string;
+	keys: { p256dh: string; auth: string };
+};
+
+// message body the service worker (public/sw.js) receives
+export type PushPayload = {
+	title: string;
+	body: string;
+	url: string;
+	tag: string;		// a newer push with the same tag replaces the older notification
+	badge?: number;		// home screen icon badge; 0 clears it, omitted leaves it alone
+};
+
+export type ReminderKind = "workout" | "breakfast" | "lunch" | "dinner";
+
+// minutes after local midnight; null = that reminder is off
+export type ReminderPreferences = Record<`${ReminderKind}_time`, number | null>;

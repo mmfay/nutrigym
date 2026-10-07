@@ -19,11 +19,13 @@ import {
 	getWorkout,
 	getWorkoutHistory,
 	removeWorkoutExercise,
+	setWorkoutSuperset,
 	startWorkout,
 	updateWorkout,
 	updateWorkoutSet,
 } from "../api/workouts/workouts";
 import { getExerciseHistory } from "../api/exercises/exercises";
+import { notifyWorkoutsChanged } from "../utils/push";
 
 const HISTORY_PAGE_SIZE = 20;
 
@@ -45,6 +47,7 @@ export type WorkoutController = {
 	saveNotes: (notes: string) => Promise<void>;
 	addExercise: (exercise_id: number) => Promise<void>;
 	removeExercise: (session_exercise_id: number) => Promise<void>;
+	setSuperset: (session_exercise_id: number, superset_with_next: boolean) => Promise<void>;
 	logSet: (session_exercise_id: number, set: WorkoutSetInput) => Promise<boolean>;
 	editSet: (set_id: number, set: WorkoutSetInput) => Promise<boolean>;
 	removeSet: (set_id: number) => Promise<void>;
@@ -194,11 +197,11 @@ export function useWorkoutController(): WorkoutController {
 
 	}, [active]);
 
-	const start = useCallback(
-		(template_id?: number | null, schedule_id?: number | null) =>
-			mutateActive(() => startWorkout({ template_id: template_id ?? null, schedule_id: schedule_id ?? null })),
-		[mutateActive]
-	);
+	const start = useCallback(async (template_id?: number | null, schedule_id?: number | null) => {
+		const ok = await mutateActive(() => startWorkout({ template_id: template_id ?? null, schedule_id: schedule_id ?? null }));
+		if (ok) notifyWorkoutsChanged();
+		return ok;
+	}, [mutateActive]);
 
 	const finish = useCallback(async () => {
 
@@ -215,6 +218,7 @@ export function useWorkoutController(): WorkoutController {
 			// history and "last time" hints now include this workout
 			requestedRef.current.clear();
 			setLastPerformance({});
+			notifyWorkoutsChanged();
 		}
 
 		return ok;
@@ -226,10 +230,14 @@ export function useWorkoutController(): WorkoutController {
 		const id = active?.id;
 		if (!id) return false;
 
-		return mutateActive(async () => {
+		const ok = await mutateActive(async () => {
 			const res = await deleteWorkout(id);
 			return { ...res, data: null };
 		});
+
+		if (ok) notifyWorkoutsChanged();
+
+		return ok;
 
 	}, [active?.id, mutateActive]);
 
@@ -255,6 +263,12 @@ export function useWorkoutController(): WorkoutController {
 		const id = active?.id;
 		if (!id) return;
 		await mutateActive(() => removeWorkoutExercise(id, session_exercise_id));
+	}, [active?.id, mutateActive]);
+
+	const setSuperset = useCallback(async (session_exercise_id: number, superset_with_next: boolean) => {
+		const id = active?.id;
+		if (!id) return;
+		await mutateActive(() => setWorkoutSuperset(id, session_exercise_id, superset_with_next));
 	}, [active?.id, mutateActive]);
 
 	const logSet = useCallback(
@@ -402,6 +416,7 @@ export function useWorkoutController(): WorkoutController {
 		saveNotes,
 		addExercise,
 		removeExercise,
+		setSuperset,
 		logSet,
 		editSet,
 		removeSet,
