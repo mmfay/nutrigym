@@ -15,6 +15,9 @@ drop table if exists workout_sessions cascade;
 drop table if exists workout_template_exercises cascade;
 drop table if exists workout_templates cascade;
 drop table if exists exercises cascade;
+drop table if exists push_reminders_sent cascade;
+drop table if exists push_subscriptions cascade;
+drop table if exists reminder_preferences cascade;
 
 -- Users table
 create table if not exists users (
@@ -324,6 +327,7 @@ create table if not exists workout_template_exercises (
 	target_reps				int,
 	target_weight			numeric(7,2),			-- lb
 	target_duration_seconds	int,
+	superset_with_next		boolean not null default false,	-- performed back to back with the next exercise by position
 	constraint chk_wte_targets_nonneg
 		check (target_sets > 0 and coalesce(target_reps, 0) >= 0 and coalesce(target_weight, 0) >= 0 and coalesce(target_duration_seconds, 0) >= 0)
 );
@@ -349,7 +353,8 @@ create table if not exists workout_session_exercises (
 	target_sets				int,
 	target_reps				int,
 	target_weight			numeric(7,2),
-	target_duration_seconds	int
+	target_duration_seconds	int,
+	superset_with_next		boolean not null default false	-- performed back to back with the next exercise by position
 );
 
 create table if not exists workout_sets (
@@ -375,4 +380,42 @@ create table if not exists workout_schedule (
 	scheduled_date		date not null,
 	session_id			bigint references workout_sessions(id) on delete set null,	-- set once the planned workout is started
 	created_at			timestamptz not null default now()
+);
+
+
+-- Web push subscriptions, one per device / browser
+create table if not exists push_subscriptions (
+	id					bigserial primary key,
+	user_id				uuid not null references users(id) on delete cascade,
+	endpoint			text not null unique,
+	p256dh				text not null,
+	auth				text not null,
+	created_at			timestamptz not null default now()
+);
+
+-- one row per reminder pushed to a device, so each kind goes out at most once per user-local day
+create table if not exists push_reminders_sent (
+	subscription_id		bigint not null references push_subscriptions(id) on delete cascade,
+	kind				text not null,
+	sent_on				date not null,			-- user-local date
+	primary key (subscription_id, kind, sent_on),
+	constraint chk_push_reminders_sent_kind
+		check (kind in ('workout','breakfast','lunch','dinner'))
+);
+
+-- reminder times in minutes after local midnight; null = off. No row = defaults (workout 8:00, meals off)
+create table if not exists reminder_preferences (
+	user_id				uuid primary key references users(id) on delete cascade,
+	workout_time		smallint default 480,
+	breakfast_time		smallint,
+	lunch_time			smallint,
+	dinner_time			smallint,
+	updated_at			timestamptz not null default now(),
+	constraint chk_reminder_preferences_times
+		check (
+			coalesce(workout_time, 0) between 0 and 1439
+			and coalesce(breakfast_time, 0) between 0 and 1439
+			and coalesce(lunch_time, 0) between 0 and 1439
+			and coalesce(dinner_time, 0) between 0 and 1439
+		)
 );

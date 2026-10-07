@@ -35,3 +35,7 @@ create index if not exists idx_wse_exercise on workout_session_exercises(exercis
 create index if not exists idx_workout_sets_session_exercise on workout_sets(session_exercise_id);
 create index if not exists idx_workout_schedule_user_date on workout_schedule(user_id, scheduled_date);
 create index if not exists idx_workout_schedule_session on workout_schedule(session_id);
+
+-- push
+create index if not exists idx_push_subscriptions_user on push_subscriptions(user_id);
+create index if not exists idx_push_reminders_sent_on on push_reminders_sent(sent_on);
