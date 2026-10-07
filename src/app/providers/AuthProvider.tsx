@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { login, logout, register, me, forgotPassword, resetPassword } from "@/lib/api/auth";
+import { disablePushOnThisDevice } from "@/lib/utils/push";
 
 export type AuthUser = {
 	id: string;
@@ -130,6 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		setLoading(true);
 
 		try {
+
+			// stop workout reminders / badge on this device while we're still signed in
+			await disablePushOnThisDevice();
 
 			await logout();
 

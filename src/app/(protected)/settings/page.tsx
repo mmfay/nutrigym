@@ -3,8 +3,18 @@
 import { useEffect, useState } from "react";
 import { useUserSettingsController } from "@/lib/hooks/useUserSettingsController";
 import { useFoodController } from "@/lib/hooks/useFoodController";
+import { usePushController } from "@/lib/hooks/usePushController";
+import { formatReminderTime, REMINDER_TIME_OPTIONS } from "@/lib/utils/push";
+import { ReminderKind } from "@/lib/dataTypes";
 import { TIMEZONES } from "@/lib/dataTypes/dropdownData";
 import Spinner from "@/app/components/Spinner";
+
+const REMINDER_ROWS: { kind: ReminderKind; label: string; hint: string }[] = [
+	{ kind: "workout", label: "Planned workout", hint: "Only on days with an unfinished planned workout" },
+	{ kind: "breakfast", label: "After breakfast", hint: "Macros logged so far and what's left" },
+	{ kind: "lunch", label: "After lunch", hint: "Macros logged so far and what's left" },
+	{ kind: "dinner", label: "After dinner", hint: "Macros logged so far and what's left" },
+];
 
 export default function SettingsPage() {
 
@@ -12,6 +22,8 @@ export default function SettingsPage() {
 	const uc = useUserSettingsController();
 	// controller for tracking history (used here just to clear it)
 	const fc = useFoodController();
+	// controller for workout reminders on this device
+	const pc = usePushController();
 
 	// clear history confirm/loading/result state
 	const [clearHistoryOpen, setClearHistoryOpen] = useState(false);
@@ -330,6 +342,118 @@ export default function SettingsPage() {
 								</p>
 							)}
 						</div>
+					)}
+				</section>
+
+				<section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+					<div className="mb-5">
+						<h2 className="text-lg font-medium text-slate-900 dark:text-white">
+							Reminders
+						</h2>
+						<p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+							Get a reminder and a badge on the NutriGym icon on days with a planned workout, plus macro check-ins after meals. Turning reminders on applies to this device; the times apply to all of your devices.
+						</p>
+					</div>
+
+					{pc.status === "loading" ? (
+						<Spinner />
+					) : pc.status === "needs_install" ? (
+						<p className="text-sm text-slate-600 dark:text-slate-400">
+							On iPhone, open NutriGym from your Home Screen to turn on reminders. In Safari, tap Share, then Add to Home Screen.
+						</p>
+					) : pc.status === "unsupported" ? (
+						<p className="text-sm text-slate-600 dark:text-slate-400">
+							This browser doesn&apos;t support reminders.
+						</p>
+					) : pc.status === "unconfigured" ? (
+						<p className="text-sm text-slate-600 dark:text-slate-400">
+							Reminders aren&apos;t available right now.
+						</p>
+					) : pc.status === "denied" ? (
+						<p className="text-sm text-slate-600 dark:text-slate-400">
+							Notifications are blocked for NutriGym. Allow them in your device settings, then come back here.
+						</p>
+					) : (
+						<div className="flex items-center justify-between gap-4">
+							<p className="text-sm text-slate-700 dark:text-slate-200">
+								{pc.status === "on" ? "Reminders are on." : "Reminders are off."}
+							</p>
+							<div className="flex gap-2">
+								{pc.status === "on" ? (
+									<>
+										<button
+											type="button"
+											onClick={pc.sendTest}
+											disabled={pc.busy}
+											className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+										>
+											Send test
+										</button>
+										<button
+											type="button"
+											onClick={pc.disable}
+											disabled={pc.busy}
+											className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+										>
+											Turn off
+										</button>
+									</>
+								) : (
+									<button
+										type="button"
+										onClick={pc.enable}
+										disabled={pc.busy}
+										className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900"
+									>
+										{pc.busy ? "Turning on..." : "Turn on reminders"}
+									</button>
+								)}
+							</div>
+						</div>
+					)}
+
+					{pc.status === "on" && pc.preferences && (
+						<div className="mt-5 divide-y divide-slate-200 border-t border-slate-200 dark:divide-slate-800 dark:border-slate-800">
+							{REMINDER_ROWS.map(({ kind, label, hint }) => {
+								const value = pc.preferences![`${kind}_time`];
+								return (
+									<div key={kind} className="flex items-center justify-between gap-4 py-3">
+										<div className="min-w-0">
+											<label htmlFor={`reminder-${kind}`} className="text-sm font-medium text-slate-700 dark:text-slate-200">
+												{label}
+											</label>
+											<p className="text-xs text-slate-500 dark:text-slate-400">{hint}</p>
+										</div>
+										<select
+											id={`reminder-${kind}`}
+											value={value ?? "off"}
+											onChange={(e) => pc.setReminderTime(kind, e.target.value === "off" ? null : Number(e.target.value))}
+											className="shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-slate-600"
+										>
+											<option value="off">Off</option>
+											{REMINDER_TIME_OPTIONS.map((m) => (
+												<option key={m} value={m}>{formatReminderTime(m)}</option>
+											))}
+										</select>
+									</div>
+								);
+							})}
+							<p className="pt-3 text-xs text-slate-500 dark:text-slate-400">
+								Meal check-ins use your macro goals, so they only go out once goals are set.
+							</p>
+						</div>
+					)}
+
+					{pc.error && (
+						<p className="mt-4 text-sm text-red-600 dark:text-red-400">
+							{pc.error}
+						</p>
+					)}
+
+					{pc.message && (
+						<p className="mt-4 text-sm text-emerald-600 dark:text-emerald-400">
+							{pc.message}
+						</p>
 					)}
 				</section>
 

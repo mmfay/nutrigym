@@ -6,7 +6,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { ExerciseProgressPoint, TrackingType, WorkoutSession } from "@/lib/dataTypes";
 import { WorkoutController } from "@/lib/hooks/useWorkoutController";
 import { formatShortDate } from "@/lib/utils/date";
-import { formatDuration, formatSet } from "@/lib/utils/workout";
+import { formatDuration, formatSet, groupSupersets } from "@/lib/utils/workout";
 import { btnDanger, btnSecondary, card, errorBox, muted } from "./ui";
 
 type Metric = {
@@ -262,21 +262,31 @@ export function SessionDetail({
 					<div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4">
 						{session.notes && <p className="text-sm text-slate-300 italic">{session.notes}</p>}
 
-						{session.exercises.map((ex) => (
-							<div key={ex.id}>
-								<p className="text-sm font-medium">{ex.exercise_name}</p>
-								{ex.sets.length === 0 ? (
-									<p className="text-xs text-slate-500">No sets logged</p>
-								) : (
-									<ol className="mt-1 space-y-0.5">
-										{ex.sets.map((s) => (
-											<li key={s.id} className="flex gap-3 text-sm tabular-nums">
-												<span className="w-5 text-right text-xs text-slate-500 pt-0.5">{s.is_warmup ? "W" : s.set_number}</span>
-												<span className={s.is_warmup ? "text-slate-400" : ""}>{formatSet(s, ex.tracking_type)}</span>
-											</li>
-										))}
-									</ol>
+						{groupSupersets(session.exercises).map((group) => (
+							<div
+								key={group[0].id}
+								className={group.length > 1 ? "border-l-4 border-indigo-500 pl-3 space-y-3" : "space-y-3"}
+							>
+								{group.length > 1 && (
+									<p className="-mb-2 text-[11px] font-semibold uppercase tracking-wide text-indigo-400">Superset</p>
 								)}
+								{group.map((ex) => (
+									<div key={ex.id}>
+										<p className="text-sm font-medium">{ex.exercise_name}</p>
+										{ex.sets.length === 0 ? (
+											<p className="text-xs text-slate-500">No sets logged</p>
+										) : (
+											<ol className="mt-1 space-y-0.5">
+												{ex.sets.map((s) => (
+													<li key={s.id} className="flex gap-3 text-sm tabular-nums">
+														<span className="w-5 text-right text-xs text-slate-500 pt-0.5">{s.is_warmup ? "W" : s.set_number}</span>
+														<span className={s.is_warmup ? "text-slate-400" : ""}>{formatSet(s, ex.tracking_type)}</span>
+													</li>
+												))}
+											</ol>
+										)}
+									</div>
+								))}
 							</div>
 						))}
 					</div>

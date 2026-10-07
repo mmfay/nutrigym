@@ -10,11 +10,13 @@ import {
 	EMPTY_SET_DRAFT,
 	formatSet,
 	formatTargets,
+	groupSupersets,
 	labelize,
 	SetDraft,
 	setInputFromDraft,
 } from "@/lib/utils/workout";
 import SetInputs from "./SetInputs";
+import { SupersetFrame, SupersetLink } from "./Superset";
 import { btnDanger, btnPrimary, btnSecondary, card, errorBox, input } from "./ui";
 
 export default function ActiveWorkout({ wc }: { wc: WorkoutController }) {
@@ -78,8 +80,22 @@ export default function ActiveWorkout({ wc }: { wc: WorkoutController }) {
 				</div>
 			)}
 
-			{session.exercises.map((ex) => (
-				<ExerciseCard key={ex.id} ex={ex} last={wc.lastPerformance[ex.exercise_id]} wc={wc} />
+			{groupSupersets(session.exercises).map((group, g, groups) => (
+				<div key={group[0].id} className="space-y-1">
+					<SupersetFrame size={group.length}>
+						{group.map((ex) => (
+							<div key={ex.id} className="space-y-1">
+								<ExerciseCard ex={ex} last={wc.lastPerformance[ex.exercise_id]} wc={wc} />
+								{ex.superset_with_next && (
+									<SupersetLink linked onToggle={() => wc.setSuperset(ex.id, false)} disabled={wc.saving} />
+								)}
+							</div>
+						))}
+					</SupersetFrame>
+					{g < groups.length - 1 && (
+						<SupersetLink linked={false} onToggle={() => wc.setSuperset(group[group.length - 1].id, true)} disabled={wc.saving} />
+					)}
+				</div>
 			))}
 
 			<button

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../providers/AuthProvider";
 import { useEffect, useRef, useState } from "react";
 import UserSettings from "./Navigation/UserSettings";
+import { useIconBadgeSync } from "@/lib/hooks/usePushController";
 
 export default function NavBar() {
 
@@ -41,6 +42,9 @@ export default function NavBar() {
 	}, [pathname]);
 
 	const isMarketing = pathname === "/";
+
+	// home screen icon badge = today's unfinished planned workouts
+	useIconBadgeSync(auth.isAuth);
 
 	const mobileValue =
 		pathname === "/tracking" || pathname === "/home" || pathname === "/kitchen" || pathname === "/training" || pathname === "/measurements"

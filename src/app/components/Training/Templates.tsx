@@ -2,7 +2,8 @@
 
 import { ArrowDown, ArrowUp, Pencil, Play, Plus, Trash2, X } from "lucide-react";
 import { WorkoutTemplateController } from "@/lib/hooks/useWorkoutTemplateController";
-import { formatTargets, labelize } from "@/lib/utils/workout";
+import { formatTargets, groupSupersets, labelize } from "@/lib/utils/workout";
+import { SupersetFrame, SupersetLink } from "./Superset";
 import { btnPrimary, btnSecondary, card, errorBox, input, muted } from "./ui";
 
 const small =
@@ -58,14 +59,18 @@ export default function Templates({
 										</IconButton>
 									</div>
 								</div>
-								<ul className="px-4 py-3 space-y-1">
-									{t.exercises.map((e) => (
-										<li key={e.id} className="flex justify-between gap-2 text-sm">
-											<span className="truncate text-slate-800 dark:text-slate-200">{e.exercise_name}</span>
-											<span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{formatTargets(e, e.tracking_type)}</span>
-										</li>
+								<div className="px-4 py-3 space-y-1">
+									{groupSupersets(t.exercises).map((group) => (
+										<SupersetFrame key={group[0].id} size={group.length} compact>
+											{group.map((e) => (
+												<div key={e.id} className="flex justify-between gap-2 text-sm">
+													<span className="truncate text-slate-800 dark:text-slate-200">{e.exercise_name}</span>
+													<span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{formatTargets(e, e.tracking_type)}</span>
+												</div>
+											))}
+										</SupersetFrame>
 									))}
-								</ul>
+								</div>
 							</li>
 						))}
 					</ul>
@@ -136,45 +141,58 @@ function TemplateBuilder({ tc }: { tc: WorkoutTemplateController }) {
 			{tc.pending.length === 0 ? (
 				<p className={`${muted} py-2`}>Add exercises and set targets for each one.</p>
 			) : (
-				<ul className="space-y-2">
-					{tc.pending.map((p, i) => {
-						const timed = p.exercise.tracking_type === "TIME" || p.exercise.tracking_type === "DISTANCE_TIME";
-						return (
-							<li key={p.tempId} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/40 p-3 space-y-2">
-								<div className="flex items-center justify-between gap-2">
-									<div className="min-w-0">
-										<p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-											{i + 1}. {p.exercise.name}
-										</p>
-										<p className="text-xs text-slate-500 dark:text-slate-400">{labelize(p.exercise.muscle_group)}</p>
-									</div>
-									<div className="flex shrink-0 items-center">
-										<IconButton label="Move up" onClick={() => tc.movePending(p.tempId, -1)} disabled={i === 0}>
-											<ArrowUp size={14} />
-										</IconButton>
-										<IconButton label="Move down" onClick={() => tc.movePending(p.tempId, 1)} disabled={i === tc.pending.length - 1}>
-											<ArrowDown size={14} />
-										</IconButton>
-										<IconButton label="Remove" danger onClick={() => tc.removePending(p.tempId)}>
-											<X size={14} />
-										</IconButton>
-									</div>
-								</div>
-								<div className="grid grid-cols-3 gap-2">
-									<TargetField label="Sets" value={p.target_sets} onChange={(v) => tc.updatePending(p.tempId, { target_sets: v })} inputMode="numeric" />
-									{timed ? (
-										<TargetField label="Time (m:ss)" value={p.target_duration_seconds} onChange={(v) => tc.updatePending(p.tempId, { target_duration_seconds: v })} inputMode="text" placeholder="—" />
-									) : (
-										<>
-											<TargetField label="Reps" value={p.target_reps} onChange={(v) => tc.updatePending(p.tempId, { target_reps: v })} inputMode="numeric" placeholder="—" />
-											<TargetField label="lb" value={p.target_weight} onChange={(v) => tc.updatePending(p.tempId, { target_weight: v })} inputMode="decimal" placeholder="—" />
-										</>
-									)}
-								</div>
-							</li>
-						);
-					})}
-				</ul>
+				<div className="space-y-1">
+					{groupSupersets(tc.pending).map((group, g, groups) => (
+						<div key={group[0].tempId} className="space-y-1">
+							<SupersetFrame size={group.length}>
+								{group.map((p) => {
+									const i = tc.pending.indexOf(p);
+									const timed = p.exercise.tracking_type === "TIME" || p.exercise.tracking_type === "DISTANCE_TIME";
+									return (
+										<div key={p.tempId} className="space-y-1">
+											<div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/40 p-3 space-y-2">
+												<div className="flex items-center justify-between gap-2">
+													<div className="min-w-0">
+														<p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+															{i + 1}. {p.exercise.name}
+														</p>
+														<p className="text-xs text-slate-500 dark:text-slate-400">{labelize(p.exercise.muscle_group)}</p>
+													</div>
+													<div className="flex shrink-0 items-center">
+														<IconButton label="Move up" onClick={() => tc.movePending(p.tempId, -1)} disabled={i === 0}>
+															<ArrowUp size={14} />
+														</IconButton>
+														<IconButton label="Move down" onClick={() => tc.movePending(p.tempId, 1)} disabled={i === tc.pending.length - 1}>
+															<ArrowDown size={14} />
+														</IconButton>
+														<IconButton label="Remove" danger onClick={() => tc.removePending(p.tempId)}>
+															<X size={14} />
+														</IconButton>
+													</div>
+												</div>
+												<div className="grid grid-cols-3 gap-2">
+													<TargetField label="Sets" value={p.target_sets} onChange={(v) => tc.updatePending(p.tempId, { target_sets: v })} inputMode="numeric" />
+													{timed ? (
+														<TargetField label="Time (m:ss)" value={p.target_duration_seconds} onChange={(v) => tc.updatePending(p.tempId, { target_duration_seconds: v })} inputMode="text" placeholder="—" />
+													) : (
+														<>
+															<TargetField label="Reps" value={p.target_reps} onChange={(v) => tc.updatePending(p.tempId, { target_reps: v })} inputMode="numeric" placeholder="—" />
+															<TargetField label="lb" value={p.target_weight} onChange={(v) => tc.updatePending(p.tempId, { target_weight: v })} inputMode="decimal" placeholder="—" />
+														</>
+													)}
+												</div>
+											</div>
+											{p.superset_with_next && <SupersetLink linked onToggle={() => tc.toggleSuperset(p.tempId)} />}
+										</div>
+									);
+								})}
+							</SupersetFrame>
+							{g < groups.length - 1 && (
+								<SupersetLink linked={false} onToggle={() => tc.toggleSuperset(group[group.length - 1].tempId)} />
+							)}
+						</div>
+					))}
+				</div>
 			)}
 
 			<button

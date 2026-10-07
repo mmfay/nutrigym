@@ -219,7 +219,7 @@ export default function ApiDocsPage() {
 				<Endpoint
 				method="GET"
 				path="/api/v1/workouts"
-				description="Returns your finished workouts started within a trailing window of days, newest first, with every exercise and set. Weights are in lb, distances in miles, durations in seconds. Warm-up sets are flagged with is_warmup. Exercises that track time or distance leave weight and reps null."
+				description="Returns your finished workouts started within a trailing window of days, newest first, with every exercise and set. Weights are in lb, distances in miles, durations in seconds. Warm-up sets are flagged with is_warmup. Exercises that track time or distance leave weight and reps null. superset_with_next is true when an exercise was performed back to back with the next exercise by position; a run of linked exercises forms one superset."
 				params={[
 					{
 					name: "days",
@@ -255,6 +255,7 @@ export default function ApiDocsPage() {
 									"target_reps": 8,
 									"target_weight": 185,
 									"target_duration_seconds": null,
+									"superset_with_next": false,
 									"sets": [
 										{
 											"id": 901,
