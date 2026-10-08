@@ -20,7 +20,7 @@ function useDebouncedValue<T>(value: T, delay = 450) {
 }
 
 function Empty({ label }: { label: string }) {
-	return <div className="text-sm text-gray-500 italic">{label}</div>;
+	return <div className="text-sm text-slate-500 italic">{label}</div>;
 }
 
 type Props = { rc: RecipeController };
@@ -88,17 +88,17 @@ export default function RecipeBuilder({ rc }: Props) {
 
 	return (
 		<>
-			<div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+			<div className="text-slate-900 dark:text-slate-100">
 				<div
 					className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:overflow-hidden"
 					style={{ height: "calc(100vh - 200px)" }}
 				>
 					{/* LEFT: food search */}
 					<div className="md:h-full md:overflow-y-auto md:pr-1">
-						<div className="sticky top-0 z-10 pb-2 bg-gray-100 dark:bg-gray-900">
+						<div className="sticky top-0 z-10 pb-2 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur">
 							<h2 className="text-xl font-bold mb-2">Add Foods</h2>
 							<input
-								className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+								className="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 								placeholder="Search foods…"
 								value={query}
 								onChange={(e) => setQuery(e.target.value)}
@@ -107,7 +107,7 @@ export default function RecipeBuilder({ rc }: Props) {
 
 						<div className="mt-2 space-y-2">
 							{searchLoading && (
-								<div className="text-sm text-gray-500">Searching…</div>
+								<div className="text-sm text-slate-500">Searching…</div>
 							)}
 							{!searchLoading && query.trim().length >= 2 && searchResults.length === 0 && (
 								<Empty label="No foods match your search." />
@@ -119,13 +119,13 @@ export default function RecipeBuilder({ rc }: Props) {
 								<button
 									key={food.id}
 									onClick={() => rc.openServingPicker(food)}
-									className="w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+									className="w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
 								>
 									<p className="font-medium truncate">{food.name}</p>
 									{food.brand && (
-										<p className="text-xs text-gray-400 truncate">{food.brand}</p>
+										<p className="text-xs text-slate-400 truncate">{food.brand}</p>
 									)}
-									<p className="text-xs text-gray-500 mt-1">
+									<p className="text-xs text-slate-500 mt-1">
 										{food.calories} kcal &nbsp;·&nbsp; P:{food.protein}g C:{food.carbs}g F:{food.fat}g
 									</p>
 									<p className="text-xs text-indigo-500 mt-1">Tap to set serving →</p>
@@ -138,11 +138,11 @@ export default function RecipeBuilder({ rc }: Props) {
 					<div className="md:h-full md:overflow-y-auto md:pl-1 space-y-4">
 						{/* Recipe name */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+							<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
 								Recipe name
 							</label>
 							<input
-								className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+								className="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 								placeholder="e.g. Spaghetti bolognese"
 								value={rc.recipeName}
 								onChange={(e) => rc.setRecipeName(e.target.value)}
@@ -151,21 +151,21 @@ export default function RecipeBuilder({ rc }: Props) {
 
 						{/* Yield */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-								Total yield <span className="font-normal text-gray-500 dark:text-gray-400">(how much this recipe makes)</span>
+							<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+								Total yield <span className="font-normal text-slate-500 dark:text-slate-400">(how much this recipe makes)</span>
 							</label>
 							<div className="flex gap-2">
 								<input
 									type="number"
 									min={0.01}
 									step={0.01}
-									className="w-24 p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+									className="w-24 p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 									placeholder="1"
 									value={rc.recipeYieldSize}
 									onChange={(e) => rc.setRecipeYieldSize(e.target.value)}
 								/>
 								<select
-									className="flex-1 p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+									className="flex-1 p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
 									value={rc.recipeYieldUnit}
 									onChange={(e) => rc.setRecipeYieldUnit(e.target.value)}
 								>
@@ -186,16 +186,16 @@ export default function RecipeBuilder({ rc }: Props) {
 									</optgroup>
 								</select>
 							</div>
-							<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+							<p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
 								When logging, you&apos;ll say how much of this you had — macros scale accordingly.
 							</p>
 						</div>
 
 						{/* Items */}
-						<div className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
-							<div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+						<div className="rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+							<div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
 								<span className="font-semibold text-sm">Items</span>
-								<span className="text-xs text-gray-500">
+								<span className="text-xs text-slate-500">
 									{rc.pendingItems.length} item{rc.pendingItems.length !== 1 ? "s" : ""}
 								</span>
 							</div>
@@ -208,14 +208,14 @@ export default function RecipeBuilder({ rc }: Props) {
 										{rc.pendingItems.map((item) => (
 											<div
 												key={item.tempId}
-												className="flex items-start justify-between gap-2 px-3 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+												className="flex items-start justify-between gap-2 px-3 py-2 rounded-lg border bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600"
 											>
 												<div className="min-w-0">
 													<p className="text-sm font-medium truncate">{item.food.name}</p>
-													<p className="text-xs text-gray-500">
+													<p className="text-xs text-slate-500">
 														{item.serving_size}{item.serving_unit} &nbsp;·&nbsp; {item.calories} kcal
 													</p>
-													<p className="text-xs text-gray-400">
+													<p className="text-xs text-slate-400">
 														P:{item.protein}g C:{item.carbs}g F:{item.fat}g
 													</p>
 												</div>
@@ -233,15 +233,15 @@ export default function RecipeBuilder({ rc }: Props) {
 
 							{/* Totals */}
 							{rc.pendingItems.length > 0 && (
-								<div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 grid grid-cols-4 gap-2 text-center">
+								<div className="px-4 py-2 border-t border-slate-200 dark:border-slate-700 grid grid-cols-4 gap-2 text-center">
 									{[
 										{ label: "Cals",    val: Math.round(totals.calories) },
 										{ label: "Protein", val: `${Math.round(totals.protein)}g` },
 										{ label: "Carbs",   val: `${Math.round(totals.carbs)}g` },
 										{ label: "Fat",     val: `${Math.round(totals.fat)}g` },
 									].map(({ label, val }) => (
-										<div key={label} className="rounded bg-gray-50 dark:bg-gray-700/60 p-1">
-											<div className="text-[10px] text-gray-500">{label}</div>
+										<div key={label} className="rounded bg-slate-50 dark:bg-slate-700/60 p-1">
+											<div className="text-[10px] text-slate-500">{label}</div>
 											<div className="text-xs font-semibold">{val}</div>
 										</div>
 									))}
@@ -249,7 +249,7 @@ export default function RecipeBuilder({ rc }: Props) {
 							)}
 
 							{/* Footer */}
-							<div className="border-t border-gray-300 dark:border-gray-700 p-4 space-y-2">
+							<div className="border-t border-slate-300 dark:border-slate-700 p-4 space-y-2">
 								{(saveError || rc.error) && (
 									<p className="text-sm text-red-500">{saveError ?? rc.error}</p>
 								)}
@@ -260,7 +260,7 @@ export default function RecipeBuilder({ rc }: Props) {
 									{rc.pendingItems.length > 0 && (
 										<button
 											onClick={rc.clearPending}
-											className="flex-1 rounded-lg border px-3 py-2 text-sm border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+											className="flex-1 rounded-lg border px-3 py-2 text-sm border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
 										>
 											Clear
 										</button>
@@ -268,7 +268,7 @@ export default function RecipeBuilder({ rc }: Props) {
 									<button
 										onClick={handleSave}
 										disabled={rc.saving || rc.pendingItems.length === 0 || !rc.recipeName.trim()}
-										className="flex-1 rounded-lg border px-3 py-2 text-sm bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 disabled:opacity-40"
+										className="flex-1 rounded-lg border px-3 py-2 text-sm bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 disabled:opacity-40"
 									>
 										{rc.saving ? "Saving…" : "Save Meal"}
 									</button>

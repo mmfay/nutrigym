@@ -289,9 +289,9 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 	return (
 		<div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50 p-safe-4">
 			<div className="flex min-h-full items-center justify-center">
-				<div className="w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
+				<div className="w-full max-w-lg max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
 					
-					<div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800">
+					<div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
 						<div className="text-sm font-semibold">Scan food</div>
 						<button
 							type="button"
@@ -311,7 +311,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 
 						{/* Show VIDEO only when we have NOT captured */}
 						{!hasCaptured && (
-							<div className="overflow-hidden rounded-xl border border-gray-200 bg-black dark:border-gray-800">
+							<div className="overflow-hidden rounded-xl border border-slate-200 bg-black dark:border-slate-800">
 								<video
 									ref={videoRef}
 									autoPlay
@@ -324,7 +324,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 
 						{/* Show IMAGE only after capture */}
 						{hasCaptured && (
-							<div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800">
+							<div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
 								<img
 									src={photoUrl!}
 									alt="Captured"
@@ -361,7 +361,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 									})}
 								</div>
 								</div>
-								<div className="mt-3 rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-800">
+								<div className="mt-3 rounded-xl border border-slate-200 p-3 text-sm dark:border-slate-800">
 									<div className="mb-2 font-semibold">Estimated macros</div>
 									<div className="grid grid-cols-2 gap-2">
 										<div>{macros.foodName}</div>
@@ -391,7 +391,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 											type="button"
 											onClick={handleRetake}
 											disabled={submitting}
-											className="rounded-xl border border-gray-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-gray-800 dark:hover:bg-white/10"
+											className="rounded-xl border border-slate-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-slate-800 dark:hover:bg-white/10"
 										>
 											Retake
 										</button>
@@ -401,7 +401,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 										type="button"
 										onClick={handleCancel}
 										disabled={submitting}
-										className="ml-auto rounded-xl border border-gray-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-gray-800 dark:hover:bg-white/10"
+										className="ml-auto rounded-xl border border-slate-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-slate-800 dark:hover:bg-white/10"
 									>
 										Cancel
 									</button>
@@ -423,7 +423,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 										type="button"
 										onClick={handleRetake}
 										disabled={submitting}
-										className="rounded-xl border border-gray-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-gray-800 dark:hover:bg-white/10"
+										className="rounded-xl border border-slate-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-slate-800 dark:hover:bg-white/10"
 									>
 										Retake
 									</button>
@@ -432,7 +432,7 @@ export default function MacroAI({ isOpen, onClose, onLog, onDate }: MacroAIProps
 										type="button"
 										onClick={handleCancel}
 										disabled={submitting}
-										className="ml-auto rounded-xl border border-gray-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-gray-800 dark:hover:bg-white/10"
+										className="ml-auto rounded-xl border border-slate-200 px-4 py-2 text-sm hover:bg-black/5 disabled:opacity-60 dark:border-slate-800 dark:hover:bg-white/10"
 									>
 										Cancel
 									</button>

@@ -13,7 +13,7 @@ export default function Tag({
 			className={[
 				"inline-flex items-center gap-2 max-w-full",
 				"px-2 py-1 rounded-full text-xs border",
-				"bg-gray-50 text-gray-800 dark:bg-gray-700 dark:text-gray-100",
+				"bg-slate-50 text-slate-800 dark:bg-slate-700 dark:text-slate-100",
 				colorClasses ?? ""
 			].join(" ")}
 			title={sub ? `${label} — ${sub}` : label}

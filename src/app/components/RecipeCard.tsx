@@ -18,15 +18,15 @@ export default function RecipeCard({ recipe, onClick, onQuickAdd }: RecipeCardPr
 	return (
 		<button
 			onClick={onClick}
-			className="relative w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+			className="relative w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white/70 dark:bg-slate-900/70 backdrop-blur border-slate-200/60 dark:border-slate-700/60"
 		>
 			<div className="font-semibold truncate">{recipe.name}</div>
 
 			<div className="mt-1 inline-flex flex-wrap items-center gap-2">
-				<span className="px-2 py-0.5 text-[11px] rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+				<span className="px-2 py-0.5 text-[11px] rounded bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100">
 					{Math.round(totalCals)} kcal / {recipe.yield_size} {recipe.yield_unit}
 				</span>
-				<span className="px-2 py-0.5 text-[11px] rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+				<span className="px-2 py-0.5 text-[11px] rounded bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100">
 					P:{Math.round(totalProtein)} C:{Math.round(totalCarbs)} F:{Math.round(totalFat)}
 				</span>
 			</div>

@@ -25,8 +25,8 @@ export default function Recipes() {
 					className={[
 						"px-3 py-1.5 rounded border text-sm",
 						mode === "create"
-							? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-							: "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300",
+							? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+							: "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300",
 					].join(" ")}
 				>
 					Create
@@ -37,8 +37,8 @@ export default function Recipes() {
 					className={[
 						"px-3 py-1.5 rounded border text-sm",
 						mode === "edit"
-							? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-							: "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300",
+							? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+							: "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300",
 					].join(" ")}
 				>
 					Saved ({rc.recipes.length})
@@ -60,11 +60,11 @@ export default function Recipes() {
 function SavedRecipes({ rc }: { rc: ReturnType<typeof useRecipeController> }) {
 
 	if (rc.loading) {
-		return <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>;
+		return <p className="text-sm text-slate-500 dark:text-slate-400">Loading…</p>;
 	}
 
 	if (rc.recipes.length === 0) {
-		return <p className="text-sm text-gray-500 dark:text-gray-400 italic">No saved recipes yet. Create one in the Create tab.</p>;
+		return <p className="text-sm text-slate-500 dark:text-slate-400 italic">No saved recipes yet. Create one in the Create tab.</p>;
 	}
 
 	return (
@@ -78,13 +78,13 @@ function SavedRecipes({ rc }: { rc: ReturnType<typeof useRecipeController> }) {
 				return (
 					<div
 						key={recipe.id}
-						className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden"
+						className="rounded-xl bg-white/70 dark:bg-slate-900/70 backdrop-blur border border-slate-200/60 dark:border-slate-700/60 overflow-hidden"
 					>
 						{/* Header */}
-						<div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+						<div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
 							<div>
-								<p className="font-semibold text-gray-900 dark:text-gray-100">{recipe.name}</p>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								<p className="font-semibold text-slate-900 dark:text-slate-100">{recipe.name}</p>
+								<p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
 									{recipe.items.length} item{recipe.items.length !== 1 ? "s" : ""} &nbsp;·&nbsp; {Math.round(totalCals)} kcal
 								</p>
 							</div>
@@ -97,7 +97,7 @@ function SavedRecipes({ rc }: { rc: ReturnType<typeof useRecipeController> }) {
 						</div>
 
 						{/* Macro summary */}
-						<div className="grid grid-cols-3 gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-700/40">
+						<div className="grid grid-cols-3 gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-700/40">
 							<MacroChip label="Protein" value={`${Math.round(totalProtein)}g`} />
 							<MacroChip label="Carbs"   value={`${Math.round(totalCarbs)}g`} />
 							<MacroChip label="Fat"     value={`${Math.round(totalFat)}g`} />
@@ -108,8 +108,8 @@ function SavedRecipes({ rc }: { rc: ReturnType<typeof useRecipeController> }) {
 							<div className="px-4 py-3 space-y-1">
 								{recipe.items.map((item) => (
 									<div key={item.id} className="flex items-center justify-between text-sm">
-										<span className="text-gray-800 dark:text-gray-200 truncate">{item.food_name}</span>
-										<span className="text-gray-500 dark:text-gray-400 text-xs shrink-0 ml-2">
+										<span className="text-slate-800 dark:text-slate-200 truncate">{item.food_name}</span>
+										<span className="text-slate-500 dark:text-slate-400 text-xs shrink-0 ml-2">
 											{Number(item.serving_size)}{item.serving_unit} · {Math.round(Number(item.calories))} kcal
 										</span>
 									</div>
@@ -125,9 +125,9 @@ function SavedRecipes({ rc }: { rc: ReturnType<typeof useRecipeController> }) {
 
 function MacroChip({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="rounded bg-white dark:bg-gray-800 px-2 py-1 text-center">
-			<div className="text-[10px] text-gray-500 dark:text-gray-400">{label}</div>
-			<div className="text-xs font-semibold text-gray-900 dark:text-gray-100">{value}</div>
+		<div className="rounded bg-white dark:bg-slate-800 px-2 py-1 text-center">
+			<div className="text-[10px] text-slate-500 dark:text-slate-400">{label}</div>
+			<div className="text-xs font-semibold text-slate-900 dark:text-slate-100">{value}</div>
 		</div>
 	);
 }

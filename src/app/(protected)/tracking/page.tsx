@@ -204,41 +204,44 @@ export default function FoodTracker() {
 	}
 
 	return (
-		<div className="min-h-dvh bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+		<div className="min-h-dvh bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 text-slate-900 dark:text-slate-100">
 		<div
 			className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-4 md:h-screen md:overflow-hidden"
 		>
 			{/* LEFT: tabbed source list (independent scroll) */}
 			<div className="md:h-full md:overflow-y-auto md:pr-1">
-			<div className="sticky top-0 z-10 pb-2 bg-gray-100 dark:bg-gray-900">
+			<div className="sticky top-0 z-10 pb-2 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur">
 				<div className="flex items-center justify-between mb-2">
 				<h1 className="text-2xl font-bold">Tracking</h1>
 				<button
 					onClick={fc.openFoodModal}
-					className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
 				>
 					+ New Food
 				</button>
 				<button
 					disabled={fc.remainingAIRequests == 0}
 					onClick={fc.openMacroAIModal}
-					className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
 				>
 					+ Use AI
 				</button>
 				</div>
 
 				{/* Tabs */}
-				<div className="flex gap-2 mb-2">
+				<div role="tablist" className="inline-flex rounded-xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 p-0.5 mb-2">
 				{(["all","recent","recipes"] as Mode[]).map(t => (
 					<button
 					key={t}
+					role="tab"
+					type="button"
+					aria-selected={mode === t}
 					onClick={() => { setMode(t); setQuery(""); }}
 					className={[
-						"px-3 py-1.5 rounded border text-sm capitalize",
+						"rounded-lg px-2.5 sm:px-3 py-1.5 text-sm font-medium capitalize transition",
 						mode === t
-						? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-						: "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+						? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+						: "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
 					].join(" ")}
 					>
 					{t}
@@ -250,18 +253,21 @@ export default function FoodTracker() {
 				{mode === "recent" && (
 				<div className="flex flex-wrap items-center gap-2">
 					<div className="text-sm opacity-80">Showing recent for:</div>
-					<div className="flex gap-2">
+					<div role="tablist" aria-label="Meal" className="inline-flex rounded-xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 p-0.5">
 					{MEALS.map(m => {
 						const c = mealColors[m];
 						const active = recentMealFilter === m;
 						return (
 						<button
 							key={m}
+							role="tab"
+							type="button"
+							aria-selected={active}
 							onClick={() => setRecentMealFilter(m)}
 							className={[
-							"px-2 py-1 rounded text-xs capitalize border",
-							active ? `${c.bg} ${c.text} ${c.border} ring-2 ${c.ring}`
-									: "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+							"rounded-lg px-2.5 sm:px-3 py-1 text-sm font-medium capitalize transition",
+							active ? `${c.bg} ${c.text} ring-1 ${c.ring}`
+									: `text-slate-600 dark:text-slate-300 ${c.hover}`
 							].join(" ")}
 						>
 							{m}
@@ -271,7 +277,7 @@ export default function FoodTracker() {
 					</div>
 					<div className="flex-1" />
 					<input
-					className="w-full md:w-1/2 p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+					className="w-full md:w-1/2 p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 					placeholder={`Search recent ${recentMealFilter}…`}
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
@@ -281,7 +287,7 @@ export default function FoodTracker() {
 
 				{mode === "all" && (
 					<input
-						className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+						className="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 						placeholder="Search all foods…"
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
@@ -290,7 +296,7 @@ export default function FoodTracker() {
 
 				{mode === "recipes" && (
 					<input
-						className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800"
+						className="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
 						placeholder="Search recipes…"
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
@@ -305,7 +311,7 @@ export default function FoodTracker() {
 				<>
 				
 					{fc.loadingRecents?.[mealId] && (
-					<div className="text-sm text-gray-500">Loading…</div>
+					<div className="text-sm text-slate-500">Loading…</div>
 					)}
 					{fc.errorRecents?.[mealId] && (
 					<div className="text-sm text-red-500">{fc.errorRecents[mealId]}</div>
@@ -337,7 +343,7 @@ export default function FoodTracker() {
 				))}
 				{mode === "all" && allFoods.length === 0 && !loadingAll && <Empty label="No foods match your search." />}
 
-				{mode === "recipes" && rc.loading && <div className="text-sm text-gray-500">Loading…</div>}
+				{mode === "recipes" && rc.loading && <div className="text-sm text-slate-500">Loading…</div>}
 
 				{mode === "recipes" && !rc.loading && rc.recipes.length === 0 && (
 					<Empty label="No saved recipes yet. Build one in the Kitchen." />
@@ -382,7 +388,7 @@ export default function FoodTracker() {
 				<input
 				type="date"
 				value={date}
-				className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm"
+				className="px-2 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
 				placeholder="YYYY-MM-DD"
 				onChange={(e) => { setDate(e.target.value); }}
 				/>
@@ -400,7 +406,7 @@ export default function FoodTracker() {
 				return (
 					<div
 						key={m}
-						className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700"
+						className="rounded-xl overflow-hidden bg-white/70 dark:bg-slate-900/70 backdrop-blur border border-slate-200/60 dark:border-slate-700/60"
 					>
 						{/* Colored header */}
 						<div className={["px-4 py-2 border-b", c.bg, c.border].join(" ")}>
@@ -425,7 +431,7 @@ export default function FoodTracker() {
 						{/* Tag list */}
 						<div className="p-4">
 						{items.length === 0 ? (
-							<div className="text-xs text-gray-500 italic">
+							<div className="text-xs text-slate-500 italic">
 							Tap a “+ {m}” chip on a food to add it here.
 							</div>
 						) : (
@@ -486,5 +492,5 @@ export default function FoodTracker() {
 }
 
 function Empty({ label }: { label: string }) {
-  return <div className="text-sm text-gray-500 italic">{label}</div>;
+  return <div className="text-sm text-slate-500 italic">{label}</div>;
 }

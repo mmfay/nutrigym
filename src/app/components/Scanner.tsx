@@ -258,17 +258,17 @@ export function Scanner({
 		<div className="w-full md:max-w-md p-safe-4">
 			<div
 			className="
-				w-full bg-white dark:bg-gray-800 
+				w-full bg-white dark:bg-slate-800 
 				rounded-t-2xl md:rounded-2xl 
 				p-4 
 				max-h-[85vh] overflow-y-auto
 			"
 			>
-			<div className="flex items-center justify-between sticky top-0 bg-white dark:bg-gray-800 pb-2">
+			<div className="flex items-center justify-between sticky top-0 bg-white dark:bg-slate-800 pb-2">
 				<h3 className="font-semibold">Scan Barcode</h3>
 				<button
 				onClick={teardownAndClose}     // ← stops + closes even if not unmounted
-				className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+				className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
 				>
 				Close
 				</button>
@@ -284,7 +284,7 @@ export function Scanner({
 					playsInline
 				/>
 				</div>
-				<p className="text-xs text-gray-500">
+				<p className="text-xs text-slate-500">
 				{err ?? "Point the camera at a barcode. Try to fill the frame; avoid glare on curved surfaces."}
 				</p>
 			</div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUserSettingsController } from "@/lib/hooks/useUserSettingsController";
 import { useFoodController } from "@/lib/hooks/useFoodController";
 import { usePushController } from "@/lib/hooks/usePushController";
@@ -8,6 +8,8 @@ import { formatReminderTime, REMINDER_TIME_OPTIONS } from "@/lib/utils/push";
 import { ReminderKind } from "@/lib/dataTypes";
 import { TIMEZONES } from "@/lib/dataTypes/dropdownData";
 import Spinner from "@/app/components/Spinner";
+import Avatar from "@/app/components/Avatar";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 const REMINDER_ROWS: { kind: ReminderKind; label: string; hint: string }[] = [
 	{ kind: "workout", label: "Planned workout", hint: "Only on days with an unfinished planned workout" },
@@ -24,6 +26,9 @@ export default function SettingsPage() {
 	const fc = useFoodController();
 	// controller for workout reminders on this device
 	const pc = usePushController();
+	// signed-in user, for the profile photo
+	const auth = useAuth();
+	const photoInputRef = useRef<HTMLInputElement | null>(null);
 
 	// clear history confirm/loading/result state
 	const [clearHistoryOpen, setClearHistoryOpen] = useState(false);
@@ -170,8 +175,50 @@ export default function SettingsPage() {
 							Account
 						</h2>
 						<p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-							Update your display name, email address, and timezone.
+							Update your profile photo, display name, email address, and timezone.
 						</p>
+					</div>
+
+					<div className="mb-5 flex items-center gap-4">
+						<Avatar user={auth.user} size={64} />
+						<div className="space-y-2">
+							<div className="flex flex-wrap gap-2">
+								<button
+									type="button"
+									onClick={() => photoInputRef.current?.click()}
+									disabled={uc.avatarSaving}
+									className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+								>
+									{uc.avatarSaving ? "Saving..." : auth.user?.avatar_version ? "Change photo" : "Upload photo"}
+								</button>
+								{auth.user?.avatar_version && (
+									<button
+										type="button"
+										onClick={uc.onAvatarRemove}
+										disabled={uc.avatarSaving}
+										className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-300 dark:hover:bg-slate-800"
+									>
+										Remove
+									</button>
+								)}
+							</div>
+							<input
+								ref={photoInputRef}
+								type="file"
+								accept="image/*"
+								className="hidden"
+								onChange={(e) => {
+									const file = e.target.files?.[0];
+									e.target.value = "";
+									if (file) uc.onAvatarUpload(file);
+								}}
+							/>
+							{uc.avatarError ? (
+								<p className="text-sm text-red-600 dark:text-red-400">{uc.avatarError}</p>
+							) : (
+								<p className="text-xs text-slate-500 dark:text-slate-400">Cropped to a square. Only you can see it.</p>
+							)}
+						</div>
 					</div>
 
 					<form onSubmit={handleAccountSave} className="space-y-4">

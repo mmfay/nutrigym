@@ -18,7 +18,7 @@ export default function FoodCard({
 	return (
 		<button
 			onClick={onClick}
-			className="relative w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+			className="relative w-full text-left p-3 rounded-xl shadow transition border hover:-translate-y-0.5 hover:shadow-md bg-white/70 dark:bg-slate-900/70 backdrop-blur border-slate-200/60 dark:border-slate-700/60"
 		>
 			{/* Top-right badge */}
 			{food.is_verified && (
@@ -32,16 +32,16 @@ export default function FoodCard({
 
 					<div className="mt-1 inline-flex flex-wrap items-center gap-2">
 						{food.brand && (
-							<span className="px-2 py-0.5 text-[11px] rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+							<span className="px-2 py-0.5 text-[11px] rounded bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100">
 								{food.brand}
 							</span>
 						)}
 
-						<span className="px-2 py-0.5 text-[11px] rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+						<span className="px-2 py-0.5 text-[11px] rounded bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100">
 							{food.calories} kcal
 						</span>
 
-						<span className="px-2 py-0.5 text-[11px] rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
+						<span className="px-2 py-0.5 text-[11px] rounded bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-100">
 							P:{food.protein} C:{food.carbs} F:{food.fat}
 						</span>
 					</div>
