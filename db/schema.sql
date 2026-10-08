@@ -18,6 +18,7 @@ drop table if exists exercises cascade;
 drop table if exists push_reminders_sent cascade;
 drop table if exists push_subscriptions cascade;
 drop table if exists reminder_preferences cascade;
+drop table if exists user_avatars cascade;
 
 -- Users table
 create table if not exists users (
@@ -418,4 +419,16 @@ create table if not exists reminder_preferences (
 			and coalesce(lunch_time, 0) between 0 and 1439
 			and coalesce(dinner_time, 0) between 0 and 1439
 		)
+);
+
+-- Profile photos: one small square image per user (resized in the browser before upload)
+create table if not exists user_avatars (
+	user_id				uuid primary key references users(id) on delete cascade,
+	image				bytea not null,
+	content_type		text not null,
+	updated_at			timestamptz not null default now(),
+	constraint chk_user_avatars_content_type
+		check (content_type in ('image/jpeg','image/png','image/webp')),
+	constraint chk_user_avatars_size
+		check (octet_length(image) <= 1048576)
 );

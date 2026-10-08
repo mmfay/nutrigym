@@ -19,7 +19,11 @@ export async function GET() {
 
 	// get user so we can check for permissions on request
 	const { rows } = await pool.query(
-		`select id, name, email, is_sys_admin from users where id = $1 limit 1`,
+		`select u.id, u.name, u.email, u.is_sys_admin,
+			(extract(epoch from a.updated_at) * 1000)::bigint::text as avatar_version
+		 from users u
+		 left join user_avatars a on a.user_id = u.id
+		 where u.id = $1 limit 1`,
 		[sess.user_id]
 	);
 
@@ -34,7 +38,7 @@ export async function GET() {
 	}
 
 	const user = {
-		id: u.id, name: u.name, email: u.email, is_sys_admin: u.is_sys_admin
+		id: u.id, name: u.name, email: u.email, is_sys_admin: u.is_sys_admin, avatar_version: u.avatar_version
 	}
 
 	return R.ok(user, "User is Authenticated");

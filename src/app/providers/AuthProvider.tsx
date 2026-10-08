@@ -10,6 +10,7 @@ export type AuthUser = {
 	name: string;
 	email: string;
 	is_sys_admin?: boolean;
+	avatar_version?: string | null;	// changes on every photo upload; null = no photo
 };
 
 export type AuthState = {
@@ -25,6 +26,7 @@ export type AuthContextValue = AuthState & {
 	handleForgotPassword: (email: string) => Promise<void>;
 	handleResetPassword: (newPassword: string, token: string) => Promise<void>;
 	refresh: () => Promise<void>;
+	updateUser: (patch: Partial<AuthUser>) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -184,8 +186,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 	};
 
+	// apply a local change (e.g. a new profile photo) without refetching or flipping `loading`
+	const updateUser = (patch: Partial<AuthUser>) => setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+
 	const value: AuthContextValue = useMemo(
-		() => ({ isAuth, user, loading, handleLogin, handleSignup, handleLogout, handleForgotPassword, handleResetPassword, refresh }),
+		() => ({ isAuth, user, loading, handleLogin, handleSignup, handleLogout, handleForgotPassword, handleResetPassword, refresh, updateUser }),
 		[isAuth, user, loading]
 	);
 

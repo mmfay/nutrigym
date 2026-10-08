@@ -2,14 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, User } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import Avatar from "../Avatar";
+import type { AuthUser } from "../../providers/AuthProvider";
 
 type UserSettingsProps = {
+	user: AuthUser | null;
 	onLogout: () => void;
 	isSysAdmin?: boolean;
 };
 
-export default function UserSettings({ onLogout, isSysAdmin = false }: UserSettingsProps) {
+export default function UserSettings({ user, onLogout, isSysAdmin = false }: UserSettingsProps) {
 
 	const [menuOpen, setMenuOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement | null>(null);
@@ -40,9 +43,7 @@ export default function UserSettings({ onLogout, isSysAdmin = false }: UserSetti
 				aria-expanded={menuOpen}
 				aria-label="Open user menu"
 			>
-				<div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-					<User className="h-4 w-4" />
-				</div>
+				<Avatar user={user} size={32} />
 
 				<ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-400" />
 			</button>

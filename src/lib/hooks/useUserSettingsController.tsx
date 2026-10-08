@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiKeyMetadata, User } from "../dataTypes/auth";
-import { getUserRecord as getUser, updateUserRecord } from "../api/usersettings/usersettings";
+import { getUserRecord as getUser, removeAvatar, updateUserRecord, uploadAvatar } from "../api/usersettings/usersettings";
+import { toSquareJpeg } from "../utils/image";
+import { useAuth } from "@/app/providers/AuthProvider";
 import { getApiKeyMetadata as getApiKeyMetadataRequest, generateApiKey, revokeApiKey } from "../api/apikeys/apikeys";
 
 
@@ -28,6 +30,12 @@ export type UserSettingsController = {
 	onGenerateApiKey: () => Promise<void>;
 	onRevokeApiKey: () => Promise<void>;
 
+	// profile photo
+	avatarSaving: boolean;
+	avatarError: string | null;
+	onAvatarUpload: (file: File) => Promise<void>;
+	onAvatarRemove: () => Promise<void>;
+
 };
 
 export function useUserSettingsController(): UserSettingsController {
@@ -41,6 +49,12 @@ export function useUserSettingsController(): UserSettingsController {
 	const [apiKeyLoading, setApiKeyLoading] = useState(false);
 	const [apiKeyMetadata, setApiKeyMetadata] = useState<ApiKeyMetadata>();
 	const [generatedKey, setGeneratedKey] = useState<string | null>(null);
+
+	const [avatarSaving, setAvatarSaving] = useState(false);
+	const [avatarError, setAvatarError] = useState<string | null>(null);
+
+	// the navbar reads the photo version from auth, so updates show everywhere at once
+	const { updateUser } = useAuth();
 
 	// Tracks whether the component using this hook is still mounted
 	const aliveRef = useRef(true);
@@ -173,6 +187,63 @@ export function useUserSettingsController(): UserSettingsController {
 
 	}, []);
 
+	// shrinks the photo in the browser (square 256px JPEG) before uploading
+	const onAvatarUpload = useCallback(async (file: File) => {
+
+		setAvatarError(null);
+
+		if (!file.type.startsWith("image/")) {
+			setAvatarError("Choose an image file.");
+			return;
+		}
+
+		setAvatarSaving(true);
+
+		try {
+
+			const res = await uploadAvatar(await toSquareJpeg(file));
+			if (!aliveRef.current) return;
+
+			if (!res.ok || !res.data) {
+				setAvatarError(res.message);
+				return;
+			}
+
+			updateUser({ avatar_version: res.data.avatar_version });
+
+		} catch {
+			if (aliveRef.current) setAvatarError("Couldn't upload that photo. Try a different one.");
+		} finally {
+			if (aliveRef.current) setAvatarSaving(false);
+		}
+
+	}, [updateUser]);
+
+	const onAvatarRemove = useCallback(async () => {
+
+		setAvatarError(null);
+		setAvatarSaving(true);
+
+		try {
+
+			const res = await removeAvatar();
+			if (!aliveRef.current) return;
+
+			if (!res.ok) {
+				setAvatarError(res.message);
+				return;
+			}
+
+			updateUser({ avatar_version: null });
+
+		} catch {
+			if (aliveRef.current) setAvatarError("Couldn't remove the photo.");
+		} finally {
+			if (aliveRef.current) setAvatarSaving(false);
+		}
+
+	}, [updateUser]);
+
 	return {
 		loading,
 		userLoading,
@@ -186,5 +257,9 @@ export function useUserSettingsController(): UserSettingsController {
 		getApiKeyMetadata,
 		onGenerateApiKey,
 		onRevokeApiKey,
+		avatarSaving,
+		avatarError,
+		onAvatarUpload,
+		onAvatarRemove,
 	};
 }
