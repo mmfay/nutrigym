@@ -100,3 +100,35 @@ export async function findFoods(textStr: string) {
 	return rows;
 
 }
+
+/**
+ * The same product's barcode as scanners may report it: UPC-A (12 digits) is often read
+ * as EAN-13 with a leading 0, and the other way round.
+ */
+function barcodeVariants(code: string) {
+
+	const variants = new Set([code]);
+
+	if (code.length === 12) variants.add(`0${code}`);
+	if (code.length === 13 && code.startsWith("0")) variants.add(code.slice(1));
+
+	return [...variants];
+
+}
+
+/**
+ * Exact barcode lookup (UPC/EAN). Returns an empty list for anything that isn't 6–14 digits.
+ */
+export async function findFoodsByBarcode(barcode: string) {
+
+	const code = barcode.replace(/\s+/g, "");
+	if (!/^\d{6,14}$/.test(code)) return [];
+
+	const { rows } = await pool.query<Food>(
+		`SELECT * FROM food WHERE barcode = ANY($1::text[]) ORDER BY is_verified DESC, id LIMIT 10`,
+		[barcodeVariants(code)]
+	);
+
+	return rows;
+
+}

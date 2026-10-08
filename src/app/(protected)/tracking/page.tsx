@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useState, useEffect, useRef } from "react";
-import { Copy } from "lucide-react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
+import { Copy, ScanBarcode, X } from "lucide-react";
+import { Scanner } from "@/app/components/Scanner";
 import { Food } from "@/lib/dataTypes";
 import { todayLocalISO, formatShortDate } from "@/lib/utils/date";
 import { Meal, mealForNow } from "@/lib/utils/meal";
@@ -42,6 +43,41 @@ function nameIncludes(f: Food, q: string) {
   	return f.name.toLowerCase().includes(q) || (f.brand?.toLowerCase().includes(q) ?? false);
 }
 
+// search box with a scan-barcode button inside its right edge
+function FoodSearchInput({
+	value,
+	onChange,
+	placeholder,
+	onScan,
+	className = "w-full",
+}: {
+	value: string;
+	onChange: (v: string) => void;
+	placeholder: string;
+	onScan: () => void;
+	className?: string;
+}) {
+	return (
+		<div className={`relative ${className}`}>
+			<input
+				className="w-full p-2 pr-11 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+				placeholder={placeholder}
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+			/>
+			<button
+				type="button"
+				onClick={onScan}
+				aria-label="Scan a barcode"
+				title="Scan a barcode"
+				className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-indigo-400 dark:hover:bg-slate-700"
+			>
+				<ScanBarcode size={20} />
+			</button>
+		</div>
+	);
+}
+
 // ---------- Component ----------
 export default function FoodTracker() {
 
@@ -61,6 +97,12 @@ export default function FoodTracker() {
 	const [date, setDate] = useState<string>(todayLocalISO());
 	const [foods, setFoods] = useState<Food[]>();
 	const [loadingAll, setLoadingAll] = useState(false);
+
+	// barcode search: a scanned code replaces the text search on the All tab until cleared
+	const [barcode, setBarcode] = useState<string | null>(null);
+	const [scannerOpen, setScannerOpen] = useState(false);
+	const [newFoodBarcode, setNewFoodBarcode] = useState<string | undefined>();
+	const [barcodeRefresh, setBarcodeRefresh] = useState(0);
 	const [copyingMeal, setCopyingMeal] = useState<Partial<Record<Meal, boolean>>>({});
 
 	useEffect(() => {
@@ -113,7 +155,7 @@ export default function FoodTracker() {
     // fetch foods from search when mode is changed and query changes
     useEffect(() => {
 
-        if (mode !== "all") return;
+        if (mode !== "all" || barcode) return;
 
         const q = debouncedQuery.trim();
 
@@ -151,7 +193,48 @@ export default function FoodTracker() {
 
         })();
         
-    }, [mode, debouncedQuery]);
+    }, [mode, debouncedQuery, barcode]);
+
+	// look up the scanned barcode (and again after a food is created for it)
+	useEffect(() => {
+
+		if (mode !== "all" || !barcode) return;
+
+		const mySeq = ++requestSeq.current;
+
+		setLoadingAll(true);
+
+		(async () => {
+			try {
+				const data = await fc.onBarcodeSearch(barcode);
+				if (requestSeq.current === mySeq) setFoods(data);
+			} catch (err) {
+				if (requestSeq.current === mySeq) {
+					console.error(err);
+					setFoods([]);
+				}
+			} finally {
+				if (requestSeq.current === mySeq) setLoadingAll(false);
+			}
+		})();
+
+	}, [mode, barcode, barcodeRefresh]);
+
+	// stable so the scanner's camera effect doesn't restart on every render
+	const openScanner = useCallback(() => setScannerOpen(true), []);
+	const closeScanner = useCallback(() => setScannerOpen(false), []);
+	const handleBarcode = useCallback((code: string) => {
+		setScannerOpen(false);
+		setQuery("");
+		setMode("all");
+		setBarcode(code.trim());
+	}, []);
+
+	// typing goes back to a normal text search
+	const handleQueryChange = useCallback((v: string) => {
+		setBarcode(null);
+		setQuery(v);
+	}, []);
 
 	// results for recent tab
 	const recentFoods = useMemo(() => {
@@ -236,7 +319,7 @@ export default function FoodTracker() {
 					role="tab"
 					type="button"
 					aria-selected={mode === t}
-					onClick={() => { setMode(t); setQuery(""); }}
+					onClick={() => { setMode(t); setQuery(""); setBarcode(null); }}
 					className={[
 						"rounded-lg px-2.5 sm:px-3 py-1.5 text-sm font-medium capitalize transition",
 						mode === t
@@ -276,22 +359,39 @@ export default function FoodTracker() {
 					})}
 					</div>
 					<div className="flex-1" />
-					<input
-					className="w-full md:w-1/2 p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+					<FoodSearchInput
+					className="w-full md:w-1/2"
 					placeholder={`Search recent ${recentMealFilter}…`}
 					value={query}
-					onChange={(e) => setQuery(e.target.value)}
+					onChange={handleQueryChange}
+					onScan={openScanner}
 					/>
 				</div>
 				)}
 
 				{mode === "all" && (
-					<input
-						className="w-full p-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
-						placeholder="Search all foods…"
+					<>
+					<FoodSearchInput
+						placeholder={barcode ? "Search all foods… (clears barcode)" : "Search all foods…"}
 						value={query}
-						onChange={(e) => setQuery(e.target.value)}
+						onChange={handleQueryChange}
+						onScan={openScanner}
 					/>
+					{barcode && (
+						<div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/50 pl-3 pr-1 py-0.5 text-xs text-indigo-700 dark:text-indigo-300">
+							<ScanBarcode size={14} aria-hidden />
+							<span className="tabular-nums">Barcode {barcode}</span>
+							<button
+								type="button"
+								onClick={() => setBarcode(null)}
+								aria-label="Clear barcode"
+								className="rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-900"
+							>
+								<X size={14} />
+							</button>
+						</div>
+					)}
+					</>
 				)}
 
 				{mode === "recipes" && (
@@ -341,7 +441,22 @@ export default function FoodTracker() {
 						onQuickAdd={(meal) => addFood(f, meal, 1)}
 					/>
 				))}
-				{mode === "all" && allFoods.length === 0 && !loadingAll && <Empty label="No foods match your search." />}
+				{mode === "all" && loadingAll && <div className="text-sm text-slate-500">Searching…</div>}
+				{mode === "all" && allFoods.length === 0 && !loadingAll && !barcode && <Empty label="No foods match your search." />}
+				{mode === "all" && allFoods.length === 0 && !loadingAll && barcode && (
+					<div className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center space-y-2">
+						<p className="text-sm text-slate-600 dark:text-slate-300">
+							No food has barcode <span className="font-medium tabular-nums">{barcode}</span> yet.
+						</p>
+						<button
+							type="button"
+							onClick={() => { setNewFoodBarcode(barcode); fc.openFoodModal(); }}
+							className="rounded-lg border px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
+						>
+							+ Create food with this barcode
+						</button>
+					</div>
+				)}
 
 				{mode === "recipes" && rc.loading && <div className="text-sm text-slate-500">Loading…</div>}
 
@@ -456,10 +571,16 @@ export default function FoodTracker() {
 			</div>
 			<AddFood
 				isOpen={fc.foodModalOpen}
-				onClose={fc.closeFoodModal}
+				onClose={() => { fc.closeFoodModal(); setNewFoodBarcode(undefined); }}
 				onOpen={fc.openFoodModal}
-				onCreate={fc.onCreate}
+				onCreate={async (food) => {
+					await fc.onCreate(food);
+					// re-run the barcode lookup so the new food shows up
+					if (barcode) setBarcodeRefresh((n) => n + 1);
+				}}
+				initialBarcode={newFoodBarcode}
 			/>
+			{scannerOpen && <Scanner onClose={closeScanner} onDetected={handleBarcode} />}
 			<AddFoodToLog
 				isOpen={fc.foodLogModalOpen}
 				food={fc.selectedFoodToLog}

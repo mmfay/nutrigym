@@ -46,6 +46,11 @@ export async function searchFood(text: String): Promise<ApiResult<Food[]>> {
 	return getJSON("/api/food/search", { text });
 }
 
+// exact barcode (UPC/EAN) lookup
+export async function searchFoodByBarcode(barcode: string): Promise<ApiResult<Food[]>> {
+	return getJSON("/api/food/search", { barcode });
+}
+
 /**
  * Adds new food to database to select from
  */

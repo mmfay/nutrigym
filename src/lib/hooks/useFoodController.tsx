@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { createFood, logFood, fetchFoodLog, deleteFoodLog, updateFoodLog, clearFoodLog, getRecentFoods, searchFood, getRemainingAIRequests, copyMeal } from "../api/food/food";
+import { createFood, logFood, fetchFoodLog, deleteFoodLog, updateFoodLog, clearFoodLog, getRecentFoods, searchFood, searchFoodByBarcode, getRemainingAIRequests, copyMeal } from "../api/food/food";
 import { FoodCreate, Food, FoodTracked } from "../dataTypes";
 
 export type FoodsController = {
@@ -19,6 +19,7 @@ export type FoodsController = {
 
 	onCreate: (food: FoodCreate) => Promise<Food>;
 	onSearch: (text: string) => Promise<Food[]>;
+	onBarcodeSearch: (barcode: string) => Promise<Food[]>;
 	onLogFood: (food: Food, meal: number, date: string) => Promise<void>;
 	onCopyMeal: (meal: number, date: string) => Promise<number>;
 	getFoodLog: (logDate: string) => Promise<void>;
@@ -310,6 +311,22 @@ export function useFoodController(): FoodsController {
 		[]
 	);
 
+	// finds foods by scanned barcode
+	const onBarcodeSearch = useCallback(
+		async (barcode: string): Promise<Food[]> => {
+
+			const res = await searchFoodByBarcode(barcode);
+
+			if (!res.ok) {
+				setError(res.message);
+				throw new Error(res.message);
+			}
+
+			return res.data ?? [];
+		},
+		[]
+	);
+
 	// opens food modal
 	function openFoodModal() {
 		setFoodModalOpen(true);
@@ -362,6 +379,7 @@ export function useFoodController(): FoodsController {
 		remainingAIRequests,
 		onCreate,
 		onSearch,
+		onBarcodeSearch,
 		onLogFood,
 		onCopyMeal,
 		getAIRequests,

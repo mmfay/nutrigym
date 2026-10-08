@@ -67,6 +67,7 @@ export type Food = {
 	serving_metric_unit?: "g" | "ml";
 	isAI?: boolean;
 	is_verified: boolean;
+	barcode?: string | null;
 }
 
 export type FoodMacros = {

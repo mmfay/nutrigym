@@ -9,9 +9,10 @@ type AddFoodProps = {
 	onClose: () => void;
 	onOpen?: () => void;
 	onCreate: (food: FoodCreate) => void;
+	initialBarcode?: string;	// pre-fills the barcode (e.g. after a scan found no match)
 };
 
-export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodProps) {
+export default function AddFood({ isOpen, onClose, onOpen, onCreate, initialBarcode }: AddFoodProps) {
 
 	// states
 	const [showScanner, setShowScanner] = useState(false);
@@ -44,7 +45,7 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 
 		setName("");
 		setBrand("");
-		setBarcode("");
+		setBarcode(initialBarcode ?? "");
 
 		setCalories("");
 		setFat("");
@@ -63,7 +64,7 @@ export default function AddFood({ isOpen, onClose, onOpen, onCreate }: AddFoodPr
 		setOpenNutrition(false);
 		setOpenServing(false);
 
-	}, [isOpen]);
+	}, [isOpen, initialBarcode]);
 
 	// Auto-expand sections if user starts typing there
 	useEffect(() => {
